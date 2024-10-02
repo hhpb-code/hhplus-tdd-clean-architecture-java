@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.hhplus.tdd.clean.architecture.domain.common.error.BusinessException;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.Lecture;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureSchedule;
+import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureEnrollmentEntity;
+import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureEnrollmentJpaRepository;
 import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureEntity;
 import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureJpaRepository;
 import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureScheduleEntity;
@@ -31,10 +33,14 @@ class LectureRepositoryTest {
   @Autowired
   private LectureScheduleJpaRepository lectureScheduleJpaRepository;
 
+  @Autowired
+  private LectureEnrollmentJpaRepository lectureEnrollmentJpaRepository;
+
   @BeforeEach
   void setUp() {
     lectureJpaRepository.deleteAll();
     lectureScheduleJpaRepository.deleteAll();
+    lectureEnrollmentJpaRepository.deleteAll();
   }
 
   @Nested
@@ -124,6 +130,30 @@ class LectureRepositoryTest {
       assertThat(result.createdAt()).isNotNull();
       assertThat(result.updatedAt()).isNull();
     }
+  }
+
+  @Test
+  @DisplayName("createLectureEnrollment 테스트 성공")
+  void shouldSuccessfullyCreateLectureEnrollment() {
+    // given
+    final Long lectureId = 1L;
+    final Long lectureScheduleId = 1L;
+    final Long userId = 1L;
+
+    // when
+    final Long result = target.createLectureEnrollment(lectureId, lectureScheduleId, userId);
+
+    // then
+    assertThat(result).isNotNull();
+
+    final LectureEnrollmentEntity lectureEnrollmentEntity = lectureEnrollmentJpaRepository.findById(
+        result).get();
+
+    assertThat(lectureEnrollmentEntity.getLectureId()).isEqualTo(lectureId);
+    assertThat(lectureEnrollmentEntity.getLectureScheduleId()).isEqualTo(lectureScheduleId);
+    assertThat(lectureEnrollmentEntity.getUserId()).isEqualTo(userId);
+    assertThat(lectureEnrollmentEntity.getCreatedAt()).isNotNull();
+    assertThat(lectureEnrollmentEntity.getUpdatedAt()).isNull();
   }
 
 }
