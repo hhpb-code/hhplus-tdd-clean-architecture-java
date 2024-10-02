@@ -14,4 +14,13 @@ public class LectureQuery {
     }
   }
 
+  public record GetLectureScheduleById(Long lectureScheduleId) {
+
+    public GetLectureScheduleById {
+      if (lectureScheduleId == null || lectureScheduleId <= 0) {
+        throw new BusinessException(LectureErrorCode.INVALID_LECTURE_SCHEDULE_ID);
+      }
+    }
+  }
+
 }

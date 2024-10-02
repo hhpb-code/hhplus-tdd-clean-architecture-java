@@ -6,6 +6,9 @@ import com.hhplus.tdd.clean.architecture.domain.lecture.dto.Lecture;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureQuery;
 import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureEntity;
 import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureJpaRepository;
+import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureScheduleEntity;
+import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureScheduleJpaRepository;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +24,8 @@ class LectureQueryServiceIntegrationTest {
   @Autowired
   private LectureJpaRepository lectureJpaRepository;
 
+  @Autowired
+  private LectureScheduleJpaRepository lectureScheduleJpaRepository;
 
   @Test
   @DisplayName("getLectureById 테스트 성공")
@@ -43,4 +48,26 @@ class LectureQueryServiceIntegrationTest {
     assertThat(result.updatedAt()).isNull();
   }
 
+  @Test
+  @DisplayName("getLectureScheduleById 테스트 성공")
+  void shouldSuccessfullyGetLectureScheduleById() {
+    // given
+    final LectureScheduleEntity lectureScheduleEntity = lectureScheduleJpaRepository.save(
+        new LectureScheduleEntity(null, 1L, 30, 0, LocalDateTime.now(), LocalDateTime.now()));
+    final LectureQuery.GetLectureScheduleById query = new LectureQuery.GetLectureScheduleById(
+        lectureScheduleEntity.getId());
+
+    // when
+    final var result = target.getLectureScheduleById(query);
+
+    // then
+    assertThat(result.id()).isEqualTo(lectureScheduleEntity.getId());
+    assertThat(result.lectureId()).isEqualTo(lectureScheduleEntity.getLectureId());
+    assertThat(result.capacity()).isEqualTo(lectureScheduleEntity.getCapacity());
+    assertThat(result.enrolledCount()).isEqualTo(lectureScheduleEntity.getEnrolledCount());
+    assertThat(result.startAt()).isNotNull();
+    assertThat(result.endAt()).isNotNull();
+    assertThat(result.createdAt()).isNotNull();
+    assertThat(result.updatedAt()).isNull();
+  }
 }

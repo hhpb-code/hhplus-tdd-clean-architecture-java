@@ -29,47 +29,112 @@ class LectureQueryTest {
       // then
       assertThat(result.getMessage()).isEqualTo(LectureErrorCode.INVALID_LECTURE_ID.getMessage());
     }
+
+    @Test
+    @DisplayName("생성자 테스트 실패 - lectureId가 0")
+    void shouldThrowExceptionWhenLectureIdIsZero() {
+      // given
+      final Long lectureId = 0L;
+
+      // when
+      final BusinessException result = assertThrows(BusinessException.class,
+          () -> new LectureQuery.GetLectureById(lectureId));
+
+      // then
+      assertThat(result.getMessage()).isEqualTo(LectureErrorCode.INVALID_LECTURE_ID.getMessage());
+    }
+
+    @Test
+    @DisplayName("생성자 테스트 실패 - lectureId가 음수")
+    void shouldThrowExceptionWhenLectureIdIsNegative() {
+      // given
+      final Long lectureId = -1L;
+
+      // when
+      final BusinessException result = assertThrows(BusinessException.class,
+          () -> new LectureQuery.GetLectureById(lectureId));
+
+      // then
+      assertThat(result.getMessage()).isEqualTo(LectureErrorCode.INVALID_LECTURE_ID.getMessage());
+    }
+
+    @Test
+    @DisplayName("생성자 테스트 성공")
+    void shouldSuccessfullyGetLectureById() {
+      // given
+      final Long lectureId = 1L;
+
+      // when
+      final LectureQuery.GetLectureById result = new LectureQuery.GetLectureById(lectureId);
+
+      // then
+      assertThat(result.lectureId()).isEqualTo(lectureId);
+    }
   }
 
-  @Test
-  @DisplayName("생성자 테스트 실패 - lectureId가 0")
-  void shouldThrowExceptionWhenLectureIdIsZero() {
-    // given
-    final Long lectureId = 0L;
+  @Nested
+  @DisplayName("GetLectureScheduleById 테스트")
+  class GetLectureScheduleByIdTest {
 
-    // when
-    final BusinessException result = assertThrows(BusinessException.class,
-        () -> new LectureQuery.GetLectureById(lectureId));
+    @Test
+    @DisplayName("생성자 테스트 실패 - lectureScheduleId가 null")
+    void shouldThrowExceptionWhenLectureScheduleIdIsNull() {
+      // given
+      final Long lectureScheduleId = null;
 
-    // then
-    assertThat(result.getMessage()).isEqualTo(LectureErrorCode.INVALID_LECTURE_ID.getMessage());
+      // when
+      final BusinessException result = assertThrows(BusinessException.class,
+          () -> new LectureQuery.GetLectureScheduleById(lectureScheduleId));
+
+      // then
+      assertThat(result.getMessage()).isEqualTo(
+          LectureErrorCode.INVALID_LECTURE_SCHEDULE_ID.getMessage());
+    }
+
+    @Test
+    @DisplayName("생성자 테스트 실패 - lectureScheduleId가 0")
+    void shouldThrowExceptionWhenLectureScheduleIdIsZero() {
+      // given
+      final Long lectureScheduleId = 0L;
+
+      // when
+      final BusinessException result = assertThrows(BusinessException.class,
+          () -> new LectureQuery.GetLectureScheduleById(lectureScheduleId));
+
+      // then
+      assertThat(result.getMessage()).isEqualTo(
+          LectureErrorCode.INVALID_LECTURE_SCHEDULE_ID.getMessage());
+    }
+
+    @Test
+    @DisplayName("생성자 테스트 실패 - lectureScheduleId가 음수")
+    void shouldThrowExceptionWhenLectureScheduleIdIsNegative() {
+      // given
+      final Long lectureScheduleId = -1L;
+
+      // when
+      final BusinessException result = assertThrows(BusinessException.class,
+          () -> new LectureQuery.GetLectureScheduleById(lectureScheduleId));
+
+      // then
+      assertThat(result.getMessage()).isEqualTo(
+          LectureErrorCode.INVALID_LECTURE_SCHEDULE_ID.getMessage());
+    }
+
+    @Test
+    @DisplayName("생성자 테스트 성공")
+    void shouldSuccessfullyGetLectureScheduleById() {
+      // given
+      final Long lectureScheduleId = 1L;
+
+      // when
+      final LectureQuery.GetLectureScheduleById result = new LectureQuery.GetLectureScheduleById(
+          lectureScheduleId);
+
+      // then
+      assertThat(result.lectureScheduleId()).isEqualTo(lectureScheduleId);
+    }
   }
 
-  @Test
-  @DisplayName("생성자 테스트 실패 - lectureId가 음수")
-  void shouldThrowExceptionWhenLectureIdIsNegative() {
-    // given
-    final Long lectureId = -1L;
-
-    // when
-    final BusinessException result = assertThrows(BusinessException.class,
-        () -> new LectureQuery.GetLectureById(lectureId));
-
-    // then
-    assertThat(result.getMessage()).isEqualTo(LectureErrorCode.INVALID_LECTURE_ID.getMessage());
-  }
-
-  @Test
-  @DisplayName("생성자 테스트 성공")
-  void shouldSuccessfullyGetLectureById() {
-    // given
-    final Long lectureId = 1L;
-
-    // when
-    final LectureQuery.GetLectureById result = new LectureQuery.GetLectureById(lectureId);
-
-    // then
-    assertThat(result.lectureId()).isEqualTo(lectureId);
-  }
 
 }
