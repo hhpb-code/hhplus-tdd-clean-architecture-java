@@ -1,6 +1,7 @@
 package com.hhplus.tdd.clean.architecture.domain.lecture;
 
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.Lecture;
+import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureEnrollment;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureQuery;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureSchedule;
 import lombok.RequiredArgsConstructor;
@@ -20,4 +21,8 @@ public class LectureQueryService {
     return lectureRepository.getLectureScheduleById(query.lectureScheduleId());
   }
 
+  public LectureEnrollment getLectureEnrollmentById(
+      LectureQuery.GetLectureEnrollmentById query) {
+    return lectureRepository.getLectureEnrollmentById(query.lectureEnrollmentId());
+  }
 }

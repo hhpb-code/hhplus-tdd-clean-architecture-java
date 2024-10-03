@@ -1,5 +1,6 @@
 package com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre;
 
+import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureEnrollment;
 import com.hhplus.tdd.clean.architecture.infrastructure.db.BaseTimeEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -40,4 +41,8 @@ public class LectureEnrollmentEntity extends BaseTimeEntity {
     this(null, lectureId, lectureScheduleId, userId, null, null);
   }
 
+  public LectureEnrollment toLectureEnrollment() {
+    return new LectureEnrollment(id, lectureId, lectureScheduleId, userId, getCreatedAt(),
+        getUpdatedAt());
+  }
 }

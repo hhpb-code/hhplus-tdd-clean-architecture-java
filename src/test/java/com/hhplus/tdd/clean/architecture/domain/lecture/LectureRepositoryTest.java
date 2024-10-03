@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.hhplus.tdd.clean.architecture.domain.common.error.BusinessException;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.Lecture;
+import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureEnrollment;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureSchedule;
 import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureEnrollmentEntity;
 import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureEnrollmentJpaRepository;
@@ -127,6 +128,49 @@ class LectureRepositoryTest {
       assertThat(result.enrolledCount()).isEqualTo(enrolledCount);
       assertThat(result.startAt()).isNotNull();
       assertThat(result.endAt()).isNotNull();
+      assertThat(result.createdAt()).isNotNull();
+      assertThat(result.updatedAt()).isNull();
+    }
+  }
+
+  @Nested
+  @DisplayName("getLectureEnrollmentById 테스트")
+  class GetLectureEnrollmentByIdTest {
+
+    @Test
+    @DisplayName("getLectureEnrollmentById 테스트 실패 - 존재하지 않는 enrollmentId")
+    void shouldThrowExceptionWhenGetLectureEnrollmentByIdWithNonExistentEnrollmentId() {
+      // given
+      final Long enrollmentId = 1L;
+
+      // when
+      final BusinessException result = assertThrows(BusinessException.class,
+          () -> target.getLectureEnrollmentById(enrollmentId));
+
+      // then
+      assertThat(result.getMessage()).isEqualTo(
+          LectureErrorCode.LECTURE_ENROLLMENT_NOT_FOUND.getMessage());
+    }
+
+    @Test
+    @DisplayName("getLectureEnrollmentById 테스트 성공")
+    void shouldSuccessfullyGetLectureEnrollmentById() {
+      // given
+      final Long lectureId = 1L;
+      final Long lectureScheduleId = 1L;
+      final Long userId = 1L;
+      final LectureEnrollmentEntity lectureEnrollmentEntity = lectureEnrollmentJpaRepository.save(
+          new LectureEnrollmentEntity(lectureId, lectureScheduleId, userId));
+
+      // when
+      final LectureEnrollment result = target.getLectureEnrollmentById(
+          lectureEnrollmentEntity.getId());
+
+      // then
+      assertThat(result.id()).isEqualTo(lectureEnrollmentEntity.getId());
+      assertThat(result.lectureId()).isEqualTo(lectureId);
+      assertThat(result.lectureScheduleId()).isEqualTo(lectureScheduleId);
+      assertThat(result.userId()).isEqualTo(userId);
       assertThat(result.createdAt()).isNotNull();
       assertThat(result.updatedAt()).isNull();
     }

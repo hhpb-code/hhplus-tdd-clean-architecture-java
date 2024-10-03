@@ -4,11 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.Lecture;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureQuery;
+import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureEnrollmentEntity;
+import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureEnrollmentJpaRepository;
 import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureEntity;
 import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureJpaRepository;
 import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureScheduleEntity;
 import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureScheduleJpaRepository;
 import java.time.LocalDateTime;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +29,16 @@ class LectureQueryServiceIntegrationTest {
 
   @Autowired
   private LectureScheduleJpaRepository lectureScheduleJpaRepository;
+
+  @Autowired
+  private LectureEnrollmentJpaRepository lectureEnrollmentJpaRepository;
+
+  @BeforeEach
+  void setUp() {
+    lectureJpaRepository.deleteAll();
+    lectureScheduleJpaRepository.deleteAll();
+    lectureEnrollmentJpaRepository.deleteAll();
+  }
 
   @Test
   @DisplayName("getLectureById 테스트 성공")
@@ -67,6 +80,26 @@ class LectureQueryServiceIntegrationTest {
     assertThat(result.enrolledCount()).isEqualTo(lectureScheduleEntity.getEnrolledCount());
     assertThat(result.startAt()).isNotNull();
     assertThat(result.endAt()).isNotNull();
+    assertThat(result.createdAt()).isNotNull();
+    assertThat(result.updatedAt()).isNull();
+  }
+
+  @Test
+  @DisplayName("getLectureEnrollmentById 테스트 성공")
+  void shouldSuccessfullyGetLectureEnrollmentById() {
+    // given
+    final LectureEnrollmentEntity lectureEnrollmentEntity = lectureEnrollmentJpaRepository.save(
+        new LectureEnrollmentEntity(2L, 3L, 4L));
+    final LectureQuery.GetLectureEnrollmentById query = new LectureQuery.GetLectureEnrollmentById(
+        lectureEnrollmentEntity.getId());
+
+    // when
+    final var result = target.getLectureEnrollmentById(query);
+
+    // then
+    assertThat(result.id()).isEqualTo(lectureEnrollmentEntity.getId());
+    assertThat(result.lectureId()).isEqualTo(lectureEnrollmentEntity.getLectureId());
+    assertThat(result.userId()).isEqualTo(lectureEnrollmentEntity.getUserId());
     assertThat(result.createdAt()).isNotNull();
     assertThat(result.updatedAt()).isNull();
   }

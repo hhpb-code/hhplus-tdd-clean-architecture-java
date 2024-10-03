@@ -23,4 +23,13 @@ public class LectureQuery {
     }
   }
 
+  public record GetLectureEnrollmentById(Long lectureEnrollmentId) {
+
+    public GetLectureEnrollmentById {
+      if (lectureEnrollmentId == null || lectureEnrollmentId <= 0) {
+        throw new BusinessException(LectureErrorCode.INVALID_LECTURE_ENROLLMENT_ID);
+      }
+    }
+  }
+
 }

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.Lecture;
+import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureEnrollment;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureQuery;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureSchedule;
 import java.time.LocalDateTime;
@@ -69,6 +70,30 @@ class LectureQueryServiceTest {
     assertThat(result.enrolledCount()).isEqualTo(lectureSchedule.enrolledCount());
     assertThat(result.startAt()).isEqualTo(lectureSchedule.startAt());
     assertThat(result.endAt()).isEqualTo(lectureSchedule.endAt());
+  }
+
+  @Test
+  @DisplayName("getLectureEnrollmentById 테스트 성공")
+  void shouldSuccessfullyGetLectureEnrollmentById() {
+    // given
+    final Long lectureEnrollmentId = 1L;
+    final LectureQuery.GetLectureEnrollmentById query = new LectureQuery.GetLectureEnrollmentById(
+        lectureEnrollmentId);
+    final LectureEnrollment lectureEnrollment = new LectureEnrollment(lectureEnrollmentId, 1L,
+        2L, 3L, LocalDateTime.now(), null);
+    doReturn(lectureEnrollment).when(lectureRepository)
+        .getLectureEnrollmentById(lectureEnrollmentId);
+
+    // when
+    final LectureEnrollment result = target.getLectureEnrollmentById(query);
+
+    // then
+    assertThat(result.id()).isEqualTo(lectureEnrollmentId);
+    assertThat(result.userId()).isEqualTo(lectureEnrollment.userId());
+    assertThat(result.lectureId()).isEqualTo(lectureEnrollment.lectureId());
+    assertThat(result.lectureScheduleId()).isEqualTo(lectureEnrollment.lectureScheduleId());
+    assertThat(result.createdAt()).isEqualTo(lectureEnrollment.createdAt());
+    assertThat(result.updatedAt()).isEqualTo(lectureEnrollment.updatedAt());
   }
 
 }

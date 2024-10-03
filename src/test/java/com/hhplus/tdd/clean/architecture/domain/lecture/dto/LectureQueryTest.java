@@ -136,5 +136,68 @@ class LectureQueryTest {
     }
   }
 
+  @Nested
+  @DisplayName("GetLectureEnrollmentById 테스트")
+  class GetLectureEnrollmentByIdTest {
+
+    @Test
+    @DisplayName("생성자 테스트 실패 - lectureEnrollmentId가 null")
+    void shouldThrowExceptionWhenLectureEnrollmentIdIsNull() {
+      // given
+      final Long lectureEnrollmentId = null;
+
+      // when
+      final BusinessException result = assertThrows(BusinessException.class,
+          () -> new LectureQuery.GetLectureEnrollmentById(lectureEnrollmentId));
+
+      // then
+      assertThat(result.getMessage()).isEqualTo(
+          LectureErrorCode.INVALID_LECTURE_ENROLLMENT_ID.getMessage());
+    }
+
+    @Test
+    @DisplayName("생성자 테스트 실패 - lectureEnrollmentId가 0")
+    void shouldThrowExceptionWhenLectureEnrollmentIdIsZero() {
+      // given
+      final Long lectureEnrollmentId = 0L;
+
+      // when
+      final BusinessException result = assertThrows(BusinessException.class,
+          () -> new LectureQuery.GetLectureEnrollmentById(lectureEnrollmentId));
+
+      // then
+      assertThat(result.getMessage()).isEqualTo(
+          LectureErrorCode.INVALID_LECTURE_ENROLLMENT_ID.getMessage());
+    }
+
+    @Test
+    @DisplayName("생성자 테스트 실패 - lectureEnrollmentId가 음수")
+    void shouldThrowExceptionWhenLectureEnrollmentIdIsNegative() {
+      // given
+      final Long lectureEnrollmentId = -1L;
+
+      // when
+      final BusinessException result = assertThrows(BusinessException.class,
+          () -> new LectureQuery.GetLectureEnrollmentById(lectureEnrollmentId));
+
+      // then
+      assertThat(result.getMessage()).isEqualTo(
+          LectureErrorCode.INVALID_LECTURE_ENROLLMENT_ID.getMessage());
+    }
+
+    @Test
+    @DisplayName("생성자 테스트 성공")
+    void shouldSuccessfullyGetLectureEnrollmentById() {
+      // given
+      final Long lectureEnrollmentId = 1L;
+
+      // when
+      final LectureQuery.GetLectureEnrollmentById result = new LectureQuery.GetLectureEnrollmentById(
+          lectureEnrollmentId);
+
+      // then
+      assertThat(result.lectureEnrollmentId()).isEqualTo(lectureEnrollmentId);
+    }
+  }
 
 }

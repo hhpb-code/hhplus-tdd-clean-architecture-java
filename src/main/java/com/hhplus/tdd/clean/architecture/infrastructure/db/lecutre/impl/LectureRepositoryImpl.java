@@ -4,6 +4,7 @@ import com.hhplus.tdd.clean.architecture.domain.common.error.BusinessException;
 import com.hhplus.tdd.clean.architecture.domain.lecture.LectureErrorCode;
 import com.hhplus.tdd.clean.architecture.domain.lecture.LectureRepository;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.Lecture;
+import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureEnrollment;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureSchedule;
 import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureEnrollmentEntity;
 import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureEnrollmentJpaRepository;
@@ -34,6 +35,13 @@ public class LectureRepositoryImpl implements LectureRepository {
     return lectureScheduleJpaRepository.findById(lectureScheduleId)
         .map(LectureScheduleEntity::toLectureSchedule)
         .orElseThrow(() -> new BusinessException(LectureErrorCode.LECTURE_SCHEDULE_NOT_FOUND));
+  }
+
+  @Override
+  public LectureEnrollment getLectureEnrollmentById(Long enrollmentId) {
+    return lectureEnrollmentJpaRepository.findById(enrollmentId)
+        .map(LectureEnrollmentEntity::toLectureEnrollment)
+        .orElseThrow(() -> new BusinessException(LectureErrorCode.LECTURE_ENROLLMENT_NOT_FOUND));
   }
 
   @Override
