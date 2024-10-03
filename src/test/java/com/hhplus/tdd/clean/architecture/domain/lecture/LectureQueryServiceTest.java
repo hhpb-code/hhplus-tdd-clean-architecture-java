@@ -60,7 +60,8 @@ class LectureQueryServiceTest {
         lectureScheduleId);
     final LectureSchedule lectureSchedule = new LectureSchedule(lectureScheduleId, 1L, 30, 0,
         LocalDateTime.now(), LocalDateTime.now(), null, null);
-    doReturn(lectureSchedule).when(lectureRepository).getLectureScheduleById(lectureScheduleId);
+    doReturn(lectureSchedule).when(lectureRepository)
+        .getLectureScheduleById(lectureScheduleId, false);
 
     // when
     final LectureSchedule result = target.getLectureScheduleById(query);

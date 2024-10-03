@@ -10,7 +10,7 @@ public interface LectureRepository {
 
   Lecture getLectureById(Long lectureId);
 
-  LectureSchedule getLectureScheduleById(Long lectureScheduleId);
+  LectureSchedule getLectureScheduleById(Long lectureScheduleId, Boolean forUpdate);
 
   List<LectureSchedule> findAvailableLectureSchedulesByDate(LocalDate date);
 

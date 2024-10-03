@@ -14,6 +14,7 @@ import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureSchedu
 import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureScheduleJpaRepository;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -33,8 +34,12 @@ public class LectureRepositoryImpl implements LectureRepository {
   }
 
   @Override
-  public LectureSchedule getLectureScheduleById(Long lectureScheduleId) {
-    return lectureScheduleJpaRepository.findById(lectureScheduleId)
+  public LectureSchedule getLectureScheduleById(Long lectureScheduleId, Boolean forUpdate) {
+    Optional<LectureScheduleEntity> lectureScheduleEntity = Boolean.TRUE.equals(forUpdate)
+        ? lectureScheduleJpaRepository.findWithLockById(lectureScheduleId)
+        : lectureScheduleJpaRepository.findById(lectureScheduleId);
+
+    return lectureScheduleEntity
         .map(LectureScheduleEntity::toLectureSchedule)
         .orElseThrow(() -> new BusinessException(LectureErrorCode.LECTURE_SCHEDULE_NOT_FOUND));
   }

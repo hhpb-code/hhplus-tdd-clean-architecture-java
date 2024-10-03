@@ -99,7 +99,7 @@ class LectureRepositoryTest {
 
       // when
       final BusinessException result = assertThrows(BusinessException.class,
-          () -> target.getLectureScheduleById(lectureScheduleId));
+          () -> target.getLectureScheduleById(lectureScheduleId, false));
 
       // then
       assertThat(result.getMessage()).isEqualTo(
@@ -120,7 +120,8 @@ class LectureRepositoryTest {
               LocalDateTime.now()));
 
       // when
-      final LectureSchedule result = target.getLectureScheduleById(lectureScheduleEntity.getId());
+      final LectureSchedule result = target.getLectureScheduleById(lectureScheduleEntity.getId(),
+          false);
 
       // then
       assertThat(result.id()).isEqualTo(lectureScheduleEntity.getId());
