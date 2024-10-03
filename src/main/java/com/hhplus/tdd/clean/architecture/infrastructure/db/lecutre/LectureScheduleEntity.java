@@ -59,4 +59,8 @@ public class LectureScheduleEntity extends BaseTimeEntity {
         getCreatedAt(),
         getUpdatedAt());
   }
+
+  public void increaseEnrollmentCount() {
+    enrolledCount++;
+  }
 }

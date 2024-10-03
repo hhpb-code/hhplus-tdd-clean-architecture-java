@@ -156,4 +156,21 @@ class LectureRepositoryTest {
     assertThat(lectureEnrollmentEntity.getUpdatedAt()).isNull();
   }
 
+  @Test
+  @DisplayName("increaseEnrollmentCountByLectureScheduleId 테스트 성공")
+  void shouldSuccessfullyIncreaseEnrollmentCountByLectureScheduleId() {
+    // given
+    final LectureScheduleEntity lectureScheduleEntity = lectureScheduleJpaRepository.save(
+        new LectureScheduleEntity(null, 1L, 30, 0, LocalDateTime.now(), LocalDateTime.now()));
+
+    // when
+    target.increaseEnrollmentCountByLectureScheduleId(lectureScheduleEntity.getId());
+
+    // then
+    final LectureScheduleEntity updatedLectureScheduleEntity = lectureScheduleJpaRepository
+        .findById(lectureScheduleEntity.getId()).get();
+    assertThat(updatedLectureScheduleEntity.getEnrolledCount()).isEqualTo(
+        lectureScheduleEntity.getEnrolledCount() + 1);
+  }
+
 }

@@ -34,4 +34,18 @@ class LectureScheduleEntityTest {
     assertThat(result.updatedAt()).isEqualTo(lectureScheduleEntity.getUpdatedAt());
   }
 
+  @Test
+  @DisplayName("increaseEnrollmentCount 테스트 성공")
+  void shouldSuccessfullyIncreaseEnrollmentCount() {
+    // given
+    final LectureScheduleEntity lectureScheduleEntity = new LectureScheduleEntity(1L, 1L, 30, 0,
+        LocalDateTime.now(), LocalDateTime.now());
+
+    // when
+    lectureScheduleEntity.increaseEnrollmentCount();
+
+    // then
+    assertThat(lectureScheduleEntity.getEnrolledCount()).isEqualTo(1);
+  }
+
 }

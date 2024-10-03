@@ -15,4 +15,8 @@ public class LectureCommandService {
         command.lectureScheduleId(), command.userId());
   }
 
+  public void increaseEnrollmentCountByLectureScheduleId(Long lectureScheduleId) {
+    lectureRepository.increaseEnrollmentCountByLectureScheduleId(lectureScheduleId);
+  }
+
 }

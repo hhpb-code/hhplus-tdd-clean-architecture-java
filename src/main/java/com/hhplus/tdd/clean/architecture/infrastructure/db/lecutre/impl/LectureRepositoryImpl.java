@@ -41,4 +41,12 @@ public class LectureRepositoryImpl implements LectureRepository {
     return lectureEnrollmentJpaRepository.save(
         new LectureEnrollmentEntity(lectureId, lectureScheduleId, userId)).getId();
   }
+
+  @Override
+  public void increaseEnrollmentCountByLectureScheduleId(Long lectureScheduleId) {
+    LectureScheduleEntity entity = lectureScheduleJpaRepository.findById(lectureScheduleId)
+        .orElseThrow(() -> new BusinessException(LectureErrorCode.LECTURE_SCHEDULE_NOT_FOUND));
+    entity.increaseEnrollmentCount();
+    lectureScheduleJpaRepository.save(entity);
+  }
 }

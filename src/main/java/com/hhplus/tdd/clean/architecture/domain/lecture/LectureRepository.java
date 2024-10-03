@@ -10,4 +10,6 @@ public interface LectureRepository {
   LectureSchedule getLectureScheduleById(Long lectureScheduleId);
 
   Long createLectureEnrollment(Long lectureId, Long lectureScheduleId, Long userId);
+
+  void increaseEnrollmentCountByLectureScheduleId(Long lectureScheduleId);
 }
