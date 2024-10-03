@@ -10,6 +10,7 @@ import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureCommand;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureEnrollment;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureQuery;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureQuery.FindAvailableLectureSchedulesByDate;
+import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureQuery.FindLectureEnrollmentsByUserId;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureSchedule;
 import com.hhplus.tdd.clean.architecture.domain.user.User;
 import com.hhplus.tdd.clean.architecture.domain.user.UserQueryService;
@@ -107,6 +108,57 @@ class LectureFacadeTest {
       assertThat(lectureSchedule.endAt()).isEqualTo(expected.endAt());
       assertThat(lectureSchedule.createdAt()).isEqualTo(expected.createdAt());
       assertThat(lectureSchedule.updatedAt()).isEqualTo(expected.updatedAt());
+    }
+  }
+
+  @Test
+  @DisplayName("getEnrolledLectures 테스트 성공")
+  void shouldSuccessfullyGetLectureEnrollments() {
+    // given
+    final Long userId = 1L;
+    final User user = new User(userId, "name", null, null);
+    final List<LectureEnrollment> lectureEnrollments = List.of(
+        new LectureEnrollment(1L, 2L, 1L, userId, null, null),
+        new LectureEnrollment(2L, 3L, 2L, userId, null, null)
+    );
+    final List<Lecture> lectures = List.of(
+        new Lecture(1L, "title1", "description1", 2L, null, null),
+        new Lecture(2L, "title2", "description2", 3L, null, null)
+    );
+    final List<User> lecturers = List.of(
+        new User(2L, "lecturer1", null, null),
+        new User(3L, "lecturer2", null, null)
+    );
+    final List<Long> lectureIds = lecturers.stream().map(User::id).toList();
+    final List<Long> lecturerIds = lecturers.stream().map(User::id).toList();
+
+    doReturn(user).when(userQueryService).getUserById(new UserQuery.GetUserById(userId));
+    doReturn(lectureEnrollments).when(lectureQueryService)
+        .findLectureEnrollments(new FindLectureEnrollmentsByUserId(userId));
+    doReturn(lectures).when(lectureQueryService)
+        .findLecturesByIds(new LectureQuery.FindLecturesByIds(lectureIds));
+    doReturn(lecturers).when(userQueryService)
+        .findUsers(new UserQuery.FindUsersByIds(lecturerIds));
+
+    // when
+    final var result = target.getEnrolledLectures(userId);
+
+    // then
+    assertThat(result).hasSize(2);
+    for (int i = 0; i < result.size(); i++) {
+      final var lectureWithLecturer = result.get(i);
+      final var lecture = lectures.get(i);
+      final var lecturer = lecturers.get(i);
+
+      assertThat(lectureWithLecturer.id()).isEqualTo(lecture.id());
+      assertThat(lectureWithLecturer.title()).isEqualTo(lecture.title());
+      assertThat(lectureWithLecturer.description()).isEqualTo(lecture.description());
+      assertThat(lectureWithLecturer.createdAt()).isEqualTo(lecture.createdAt());
+      assertThat(lectureWithLecturer.updatedAt()).isEqualTo(lecture.updatedAt());
+      assertThat(lectureWithLecturer.lecturer().id()).isEqualTo(lecturer.id());
+      assertThat(lectureWithLecturer.lecturer().name()).isEqualTo(lecturer.name());
+      assertThat(lectureWithLecturer.lecturer().createdAt()).isEqualTo(lecturer.createdAt());
+      assertThat(lectureWithLecturer.lecturer().updatedAt()).isEqualTo(lecturer.updatedAt());
     }
   }
 

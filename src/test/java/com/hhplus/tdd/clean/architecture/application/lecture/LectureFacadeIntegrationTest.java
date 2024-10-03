@@ -6,7 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.hhplus.tdd.clean.architecture.domain.common.error.BusinessException;
 import com.hhplus.tdd.clean.architecture.domain.lecture.LectureErrorCode;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureEnrollment;
+import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureWithLecturer;
 import com.hhplus.tdd.clean.architecture.domain.user.UserErrorCode;
+import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureEnrollmentEntity;
+import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureEnrollmentJpaRepository;
 import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureEntity;
 import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureJpaRepository;
 import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureScheduleEntity;
@@ -38,12 +41,16 @@ class LectureFacadeIntegrationTest {
   @Autowired
   private LectureScheduleJpaRepository lectureScheduleJpaRepository;
 
+  @Autowired
+  private LectureEnrollmentJpaRepository lectureEnrollmentJpaRepository;
+
 
   @BeforeEach
   void setUp() {
     userJpaRepository.deleteAll();
     lectureJpaRepository.deleteAll();
     lectureScheduleJpaRepository.deleteAll();
+    lectureEnrollmentJpaRepository.deleteAll();
   }
 
   @Nested
@@ -137,6 +144,52 @@ class LectureFacadeIntegrationTest {
           .findById(lectureScheduleId).get();
       assertThat(updatedLectureScheduleEntity.getEnrolledCount()).isEqualTo(
           lectureScheduleEntity.getEnrolledCount() + 1);
+    }
+  }
+
+  @Test
+  @DisplayName("getEnrolledLectures 테스트 성공")
+  void shouldSuccessfullyGetEnrolledLectures() {
+    // given
+    final UserEntity userEntity = userJpaRepository.save(
+        new UserEntity(null, "name", "password"));
+    final Long userId = userEntity.getId();
+    final List<LectureEntity> lectures = lectureJpaRepository.saveAll(List.of(
+        new LectureEntity(null, "title1", "description1", 2L),
+        new LectureEntity(null, "title2", "description2", 3L)
+    ));
+    final List<Long> lectureIds = lectures.stream()
+        .map(LectureEntity::getId)
+        .toList();
+    final List<UserEntity> lecturers = userJpaRepository.saveAll(List.of(
+        new UserEntity(null, "lecturer1", "password"),
+        new UserEntity(null, "lecturer2", "password")
+    ));
+    lectureEnrollmentJpaRepository.saveAll(
+        List.of(
+            new LectureEnrollmentEntity(lectureIds.get(0), 1L, userId),
+            new LectureEnrollmentEntity(lectureIds.get(1), 2L, userId)
+        ));
+
+    // when
+    final List<LectureWithLecturer> result = target.getEnrolledLectures(userId);
+
+    // then
+    assertThat(result).hasSize(2);
+    for (int i = 0; i < result.size(); i++) {
+      final LectureWithLecturer lectureWithLecturer = result.get(i);
+      final LectureEntity lectureEntity = lectures.get(i);
+      final UserEntity lecturerEntity = lecturers.get(i);
+
+      assertThat(lectureWithLecturer.id()).isEqualTo(lectureEntity.getId());
+      assertThat(lectureWithLecturer.title()).isEqualTo(lectureEntity.getTitle());
+      assertThat(lectureWithLecturer.description()).isEqualTo(lectureEntity.getDescription());
+      assertThat(lectureWithLecturer.createdAt()).isNotNull();
+      assertThat(lectureWithLecturer.updatedAt()).isNull();
+      assertThat(lectureWithLecturer.lecturer().id()).isEqualTo(lecturerEntity.getId());
+      assertThat(lectureWithLecturer.lecturer().name()).isEqualTo(lecturerEntity.getName());
+      assertThat(lectureWithLecturer.lecturer().createdAt()).isNotNull();
+      assertThat(lectureWithLecturer.lecturer().updatedAt()).isNull();
     }
   }
 
