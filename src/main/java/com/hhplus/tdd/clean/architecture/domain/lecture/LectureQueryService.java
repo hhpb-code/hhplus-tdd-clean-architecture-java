@@ -22,7 +22,7 @@ public class LectureQueryService {
   }
 
   public LectureSchedule getLectureScheduleById(LectureQuery.GetLectureScheduleById query) {
-    return lectureRepository.getLectureScheduleById(query.lectureScheduleId());
+    return lectureRepository.getLectureScheduleById(query.lectureScheduleId(), query.forUpdate());
   }
 
   public List<LectureSchedule> findAvailableLectureSchedules(

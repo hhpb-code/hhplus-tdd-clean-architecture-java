@@ -1,6 +1,8 @@
 package com.hhplus.tdd.clean.architecture.application.lecture;
 
+import com.hhplus.tdd.clean.architecture.domain.common.error.BusinessException;
 import com.hhplus.tdd.clean.architecture.domain.lecture.LectureCommandService;
+import com.hhplus.tdd.clean.architecture.domain.lecture.LectureErrorCode;
 import com.hhplus.tdd.clean.architecture.domain.lecture.LectureQueryService;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.Lecture;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureCommand;
@@ -30,7 +32,6 @@ public class LectureFacade {
   private final LectureCommandService lectureCommandService;
   private final UserQueryService userQueryService;
 
-  // TODO: 최대 수강 인원 체크 구현 (STEP 3)
   // TODO: 동일 특강 중복 등록 체크 구현 (STEP 4)
   @Transactional
   public LectureEnrollment enrollLecture(Long lectureId, Long lectureScheduleId, Long userId) {
@@ -38,7 +39,11 @@ public class LectureFacade {
     final var lecture = lectureQueryService.getLectureById(
         new LectureQuery.GetLectureById(lectureId));
     final var lectureSchedule = lectureQueryService.getLectureScheduleById(
-        new LectureQuery.GetLectureScheduleById(lectureScheduleId));
+        new LectureQuery.GetLectureScheduleById(lectureScheduleId, true));
+
+    if (lectureSchedule.enrolledCount() + 1 > lectureSchedule.capacity()) {
+      throw new BusinessException(LectureErrorCode.ENROLLMENT_EXCEED_CAPACITY);
+    }
 
     final Long enrollmentId = lectureCommandService.createLectureEnrollment(
         new LectureCommand.CreateLectureEnrollment(lecture.id(), lectureSchedule.id(), user.id()));

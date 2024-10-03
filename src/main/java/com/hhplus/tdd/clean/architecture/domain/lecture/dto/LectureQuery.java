@@ -16,12 +16,19 @@ public class LectureQuery {
     }
   }
 
-  public record GetLectureScheduleById(Long lectureScheduleId) {
+  public record GetLectureScheduleById(Long lectureScheduleId, Boolean forUpdate) {
 
-    public GetLectureScheduleById {
+    public GetLectureScheduleById(Long lectureScheduleId, Boolean forUpdate) {
       if (lectureScheduleId == null || lectureScheduleId <= 0) {
         throw new BusinessException(LectureErrorCode.INVALID_LECTURE_SCHEDULE_ID);
       }
+
+      this.lectureScheduleId = lectureScheduleId;
+      this.forUpdate = forUpdate.equals(Boolean.TRUE);
+    }
+
+    public GetLectureScheduleById(Long lectureScheduleId) {
+      this(lectureScheduleId, false);
     }
   }
 

@@ -8,4 +8,6 @@ public interface LectureEnrollmentJpaRepository extends
 
   List<LectureEnrollmentEntity> findAllByUserId(Long userId);
 
+  List<LectureEnrollmentEntity> findAllByLectureScheduleId(Long lectureScheduleId);
+
 }

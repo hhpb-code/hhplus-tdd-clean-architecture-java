@@ -18,6 +18,8 @@ import com.hhplus.tdd.clean.architecture.infrastructure.db.user.UserEntity;
 import com.hhplus.tdd.clean.architecture.infrastructure.db.user.UserJpaRepository;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.IntStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -116,6 +118,31 @@ class LectureFacadeIntegrationTest {
     }
 
     @Test
+    @DisplayName("수강 신청 실패 - 수강 신청 인원 초과")
+    void shouldThrowBusinessExceptionWhenExceedCapacity() {
+      // given
+      final UserEntity userEntity = userJpaRepository.save(
+          new UserEntity(null, "name", "password"));
+      final LectureEntity lectureEntity = lectureJpaRepository.save(
+          new LectureEntity(null, "title", "description", 2L));
+      final LectureScheduleEntity lectureScheduleEntity = lectureScheduleJpaRepository.save(
+          new LectureScheduleEntity(null, lectureEntity.getId(), 30, 30, LocalDateTime.now(),
+              LocalDateTime.now().plusHours(1)));
+      final Long userId = userEntity.getId();
+      final Long lectureId = lectureEntity.getId();
+      final Long lectureScheduleId = lectureScheduleEntity.getId();
+
+      // when
+      final BusinessException result = assertThrows(BusinessException.class, () -> {
+        target.enrollLecture(lectureId, lectureScheduleId, userId);
+      });
+
+      // then
+      assertThat(result.getMessage()).isEqualTo(LectureErrorCode.ENROLLMENT_EXCEED_CAPACITY
+          .getMessage());
+    }
+
+    @Test
     @DisplayName("수강 신청 성공")
     void shouldSuccessfullyEnrollLecture() {
       // given
@@ -144,6 +171,82 @@ class LectureFacadeIntegrationTest {
           .findById(lectureScheduleId).get();
       assertThat(updatedLectureScheduleEntity.getEnrolledCount()).isEqualTo(
           lectureScheduleEntity.getEnrolledCount() + 1);
+    }
+
+    @Test
+    @DisplayName("수강 신청 성공 동시성 테스트")
+    void shouldSuccessfullyEnrollLectureWithConcurrency() {
+      // given
+      final int threadCount = 30;
+      final List<UserEntity> userEntities = userJpaRepository.saveAll(
+          IntStream.range(0, threadCount)
+              .mapToObj(i -> new UserEntity(null, "name" + i, "password"))
+              .toList()
+      );
+      final LectureEntity lectureEntity = lectureJpaRepository.save(
+          new LectureEntity(null, "title", "description", 2L));
+      final LectureScheduleEntity lectureScheduleEntity = lectureScheduleJpaRepository.save(
+          new LectureScheduleEntity(null, lectureEntity.getId(), 30, 0, LocalDateTime.now(),
+              LocalDateTime.now().plusHours(1)));
+      final Long lectureId = lectureEntity.getId();
+      final Long lectureScheduleId = lectureScheduleEntity.getId();
+
+      // when
+      final List<CompletableFuture<Void>> futures = IntStream.range(0, threadCount)
+          .mapToObj(i -> CompletableFuture.runAsync(() -> {
+            final UserEntity userEntity = userEntities.get(i);
+            final Long userId = userEntity.getId();
+            target.enrollLecture(lectureId, lectureScheduleId, userId);
+          }))
+          .toList();
+      CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+
+      // then
+      final LectureScheduleEntity updatedLectureScheduleEntity = lectureScheduleJpaRepository
+          .findById(lectureScheduleId).get();
+      assertThat(updatedLectureScheduleEntity.getEnrolledCount()).isEqualTo(threadCount);
+    }
+
+    @Test
+    @DisplayName("수강 신청 성공 동시성 테스트 - 인원 초과")
+    void shouldSuccessfullyEnrollLectureWithConcurrencyWhenExceedCapacity() {
+      // given
+      final int threadCount = 40;
+      final List<UserEntity> userEntities = userJpaRepository.saveAll(
+          IntStream.range(0, threadCount)
+              .mapToObj(i -> new UserEntity(null, "name" + i, "password"))
+              .toList()
+      );
+      final LectureEntity lectureEntity = lectureJpaRepository.save(
+          new LectureEntity(null, "title", "description", 2L));
+      final LectureScheduleEntity lectureScheduleEntity = lectureScheduleJpaRepository.save(
+          new LectureScheduleEntity(null, lectureEntity.getId(), 30, 0, LocalDateTime.now(),
+              LocalDateTime.now().plusHours(1)));
+      final Long lectureId = lectureEntity.getId();
+      final Long lectureScheduleId = lectureScheduleEntity.getId();
+
+      // when
+      final List<CompletableFuture<Void>> futures = IntStream.range(0, threadCount)
+          .mapToObj(i -> CompletableFuture.runAsync(() -> {
+            try {
+              final UserEntity userEntity = userEntities.get(i);
+              final Long userId = userEntity.getId();
+              target.enrollLecture(lectureId, lectureScheduleId, userId);
+            } catch (BusinessException e) {
+              assertThat(e.getMessage()).isEqualTo(LectureErrorCode.ENROLLMENT_EXCEED_CAPACITY
+                  .getMessage());
+            }
+          }))
+          .toList();
+      CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+
+      // then
+      final LectureScheduleEntity updatedLectureScheduleEntity = lectureScheduleJpaRepository
+          .findById(lectureScheduleId).get();
+      assertThat(updatedLectureScheduleEntity.getEnrolledCount()).isEqualTo(30);
+      final List<LectureEnrollmentEntity> lectureEnrollments = lectureEnrollmentJpaRepository
+          .findAllByLectureScheduleId(lectureScheduleId);
+      assertThat(lectureEnrollments).hasSize(30);
     }
   }
 

@@ -1,9 +1,12 @@
 package com.hhplus.tdd.clean.architecture.application.lecture;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
 
+import com.hhplus.tdd.clean.architecture.domain.common.error.BusinessException;
 import com.hhplus.tdd.clean.architecture.domain.lecture.LectureCommandService;
+import com.hhplus.tdd.clean.architecture.domain.lecture.LectureErrorCode;
 import com.hhplus.tdd.clean.architecture.domain.lecture.LectureQueryService;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.Lecture;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureCommand;
@@ -18,6 +21,7 @@ import com.hhplus.tdd.clean.architecture.domain.user.dto.UserQuery;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -40,42 +44,77 @@ class LectureFacadeTest {
   @Mock
   private UserQueryService userQueryService;
 
-  @Test
-  @DisplayName("enrollLecture 테스트 성공")
-  void shouldSuccessfullyEnrollLecture() {
-    // given
-    final Long userId = 1L;
-    final Long lectureId = 1L;
-    final Long lectureScheduleId = 1L;
-    final Long lectureEnrollmentId = 1L;
-    final User user = new User(userId, "name", null, null);
-    final Lecture lecture = new Lecture(lectureId, "title", "description", 2L, null, null);
-    final LectureSchedule lectureSchedule = new LectureSchedule(lectureScheduleId, lectureId, 30, 0,
-        null, null, null, null);
-    final LectureEnrollment lectureEnrollment = new LectureEnrollment(lectureEnrollmentId,
-        lectureId, lectureScheduleId, userId, null, null);
+  @Nested
+  @DisplayName("enrollLecture 테스트")
+  class EnrollLectureTest {
 
-    doReturn(user).when(userQueryService).getUserById(new UserQuery.GetUserById(userId));
-    doReturn(lecture).when(lectureQueryService)
-        .getLectureById(new LectureQuery.GetLectureById(lectureId));
-    doReturn(lectureSchedule).when(lectureQueryService).getLectureScheduleById(
-        new LectureQuery.GetLectureScheduleById(lectureScheduleId));
-    doReturn(lectureEnrollmentId).when(lectureCommandService)
-        .createLectureEnrollment(
-            new LectureCommand.CreateLectureEnrollment(lectureId, lectureScheduleId, userId));
-    doReturn(lectureEnrollment).when(lectureQueryService)
-        .getLectureEnrollmentById(new LectureQuery.GetLectureEnrollmentById(lectureEnrollmentId));
+    @Test
+    @DisplayName("enrollLecture 테스트 실패 - 수강 신청 인원 초과")
+    void shouldThrowExceptionWhenExceedCapacity() {
+      // given
+      final Long userId = 1L;
+      final Long lectureId = 1L;
+      final Long lectureScheduleId = 1L;
+      final User user = new User(userId, "name", null, null);
+      final Lecture lecture = new Lecture(lectureId, "title", "description", 2L, null, null);
+      final LectureSchedule lectureSchedule = new LectureSchedule(lectureScheduleId, lectureId, 30,
+          30,
+          null, null, null, null);
 
-    // when
-    final LectureEnrollment result = target.enrollLecture(lectureId, lectureScheduleId, userId);
+      doReturn(user).when(userQueryService).getUserById(new UserQuery.GetUserById(userId));
+      doReturn(lecture).when(lectureQueryService)
+          .getLectureById(new LectureQuery.GetLectureById(lectureId));
+      doReturn(lectureSchedule).when(lectureQueryService).getLectureScheduleById(
+          new LectureQuery.GetLectureScheduleById(lectureScheduleId, true));
 
-    // then
-    assertThat(result.id()).isEqualTo(lectureEnrollmentId);
-    assertThat(result.lectureId()).isEqualTo(lectureId);
-    assertThat(result.lectureScheduleId()).isEqualTo(lectureScheduleId);
-    assertThat(result.userId()).isEqualTo(userId);
-    assertThat(result.createdAt()).isEqualTo(lectureEnrollment.createdAt());
-    assertThat(result.updatedAt()).isEqualTo(lectureEnrollment.updatedAt());
+      // when
+      final var result = assertThrows(BusinessException.class,
+          () -> target.enrollLecture(lectureId, lectureScheduleId, userId));
+
+      // then
+      assertThat(result.getMessage()).isEqualTo(
+          LectureErrorCode.ENROLLMENT_EXCEED_CAPACITY.getMessage());
+    }
+
+    @Test
+    @DisplayName("enrollLecture 테스트 성공")
+    void shouldSuccessfullyEnrollLecture() {
+      // given
+      final Long userId = 1L;
+      final Long lectureId = 1L;
+      final Long lectureScheduleId = 1L;
+      final Long lectureEnrollmentId = 1L;
+      final User user = new User(userId, "name", null, null);
+      final Lecture lecture = new Lecture(lectureId, "title", "description", 2L, null, null);
+      final LectureSchedule lectureSchedule = new LectureSchedule(lectureScheduleId, lectureId, 30,
+          0,
+          null, null, null, null);
+      final LectureEnrollment lectureEnrollment = new LectureEnrollment(lectureEnrollmentId,
+          lectureId, lectureScheduleId, userId, null, null);
+
+      doReturn(user).when(userQueryService).getUserById(new UserQuery.GetUserById(userId));
+      doReturn(lecture).when(lectureQueryService)
+          .getLectureById(new LectureQuery.GetLectureById(lectureId));
+      doReturn(lectureSchedule).when(lectureQueryService).getLectureScheduleById(
+          new LectureQuery.GetLectureScheduleById(lectureScheduleId, true));
+      doReturn(lectureEnrollmentId).when(lectureCommandService)
+          .createLectureEnrollment(
+              new LectureCommand.CreateLectureEnrollment(lectureId, lectureScheduleId, userId));
+      doReturn(lectureEnrollment).when(lectureQueryService)
+          .getLectureEnrollmentById(new LectureQuery.GetLectureEnrollmentById(lectureEnrollmentId));
+
+      // when
+      final LectureEnrollment result = target.enrollLecture(lectureId, lectureScheduleId, userId);
+
+      // then
+      assertThat(result.id()).isEqualTo(lectureEnrollmentId);
+      assertThat(result.lectureId()).isEqualTo(lectureId);
+      assertThat(result.lectureScheduleId()).isEqualTo(lectureScheduleId);
+      assertThat(result.userId()).isEqualTo(userId);
+      assertThat(result.createdAt()).isEqualTo(lectureEnrollment.createdAt());
+      assertThat(result.updatedAt()).isEqualTo(lectureEnrollment.updatedAt());
+    }
+
   }
 
   @Test
