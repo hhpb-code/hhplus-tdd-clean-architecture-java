@@ -1,7 +1,9 @@
 package com.hhplus.tdd.clean.architecture.domain.lecture;
 
+import com.hhplus.tdd.clean.architecture.domain.common.error.BusinessException;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureCommand;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -11,8 +13,12 @@ public class LectureCommandService {
   private final LectureRepository lectureRepository;
 
   public Long createLectureEnrollment(LectureCommand.CreateLectureEnrollment command) {
-    return lectureRepository.createLectureEnrollment(command.lectureId(),
-        command.lectureScheduleId(), command.userId());
+    try {
+      return lectureRepository.createLectureEnrollment(command.lectureId(),
+          command.lectureScheduleId(), command.userId());
+    } catch (DataIntegrityViolationException e) {
+      throw new BusinessException(LectureErrorCode.DUPLICATE_ENROLLMENT);
+    }
   }
 
   public void increaseEnrollmentCountByLectureScheduleId(Long lectureScheduleId) {
