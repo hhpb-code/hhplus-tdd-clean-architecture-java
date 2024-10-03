@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.Lecture;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureQuery;
+import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureQuery.FindLectureEnrollmentsByUserId;
 import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureEnrollmentEntity;
 import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureEnrollmentJpaRepository;
 import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureEntity;
@@ -144,6 +145,35 @@ class LectureQueryServiceIntegrationTest {
     assertThat(result.userId()).isEqualTo(lectureEnrollmentEntity.getUserId());
     assertThat(result.createdAt()).isNotNull();
     assertThat(result.updatedAt()).isNull();
+  }
+
+  @Test
+  @DisplayName("findLectureEnrollmentsByUserId 테스트 성공")
+  void shouldSuccessfullyFindLectureEnrollmentsByUserId() {
+    // given
+    final Long userId = 1L;
+    final var lectureEnrollmentEntities = List.of(
+        lectureEnrollmentJpaRepository.save(new LectureEnrollmentEntity(1L, 1L, userId)),
+        lectureEnrollmentJpaRepository.save(new LectureEnrollmentEntity(2L, 2L, userId))
+    );
+    lectureEnrollmentJpaRepository.save(new LectureEnrollmentEntity(3L, 3L, userId + 1));
+
+    // when
+    final var result = target.findLectureEnrollments(
+        new FindLectureEnrollmentsByUserId(userId));
+
+    // then
+    assertThat(result).hasSize(2);
+    for (int i = 0; i < result.size(); i++) {
+      final var lectureEnrollment = result.get(i);
+      final var lectureEnrollmentEntity = lectureEnrollmentEntities.get(i);
+
+      assertThat(lectureEnrollment.id()).isEqualTo(lectureEnrollmentEntity.getId());
+      assertThat(lectureEnrollment.lectureId()).isEqualTo(lectureEnrollmentEntity.getLectureId());
+      assertThat(lectureEnrollment.userId()).isEqualTo(lectureEnrollmentEntity.getUserId());
+      assertThat(lectureEnrollment.createdAt()).isNotNull();
+      assertThat(lectureEnrollment.updatedAt()).isNull();
+    }
   }
 
 }

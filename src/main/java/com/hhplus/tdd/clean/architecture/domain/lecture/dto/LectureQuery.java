@@ -42,4 +42,13 @@ public class LectureQuery {
     }
   }
 
+  public record FindLectureEnrollmentsByUserId(Long userId) {
+
+    public FindLectureEnrollmentsByUserId {
+      if (userId == null || userId <= 0) {
+        throw new BusinessException(LectureErrorCode.INVALID_USER_ID);
+      }
+    }
+  }
+
 }

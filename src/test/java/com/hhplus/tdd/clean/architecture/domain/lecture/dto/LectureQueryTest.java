@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.hhplus.tdd.clean.architecture.domain.common.error.BusinessException;
 import com.hhplus.tdd.clean.architecture.domain.lecture.LectureErrorCode;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureQuery.FindAvailableLectureSchedulesByDate;
+import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureQuery.FindLectureEnrollmentsByUserId;
 import java.time.LocalDate;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -247,6 +248,67 @@ class LectureQueryTest {
 
       // then
       assertThat(result.lectureEnrollmentId()).isEqualTo(lectureEnrollmentId);
+    }
+  }
+
+  @Nested
+  @DisplayName("FindLectureEnrollmentsByUserId 테스트")
+  class FindLectureEnrollmentsByUserIdTest {
+
+    @Test
+    @DisplayName("생성자 테스트 실패 - userId가 null")
+    void shouldThrowExceptionWhenUserIdIsNull() {
+      // given
+      final Long userId = null;
+
+      // when
+      final BusinessException result = assertThrows(BusinessException.class,
+          () -> new FindLectureEnrollmentsByUserId(userId));
+
+      // then
+      assertThat(result.getMessage()).isEqualTo(LectureErrorCode.INVALID_USER_ID.getMessage());
+    }
+
+    @Test
+    @DisplayName("생성자 테스트 실패 - userId가 0")
+    void shouldThrowExceptionWhenUserIdIsZero() {
+      // given
+      final Long userId = 0L;
+
+      // when
+      final BusinessException result = assertThrows(BusinessException.class,
+          () -> new FindLectureEnrollmentsByUserId(userId));
+
+      // then
+      assertThat(result.getMessage()).isEqualTo(LectureErrorCode.INVALID_USER_ID.getMessage());
+    }
+
+    @Test
+    @DisplayName("생성자 테스트 실패 - userId가 음수")
+    void shouldThrowExceptionWhenUserIdIsNegative() {
+      // given
+      final Long userId = -1L;
+
+      // when
+      final BusinessException result = assertThrows(BusinessException.class,
+          () -> new FindLectureEnrollmentsByUserId(userId));
+
+      // then
+      assertThat(result.getMessage()).isEqualTo(LectureErrorCode.INVALID_USER_ID.getMessage());
+    }
+
+    @Test
+    @DisplayName("생성자 테스트 성공")
+    void shouldSuccessfullyFindLectureEnrollmentsByUserId() {
+      // given
+      final Long userId = 1L;
+
+      // when
+      final FindLectureEnrollmentsByUserId result = new FindLectureEnrollmentsByUserId(
+          userId);
+
+      // then
+      assertThat(result.userId()).isEqualTo(userId);
     }
   }
 

@@ -16,6 +16,8 @@ public interface LectureRepository {
 
   LectureEnrollment getLectureEnrollmentById(Long enrollmentId);
 
+  List<LectureEnrollment> findLectureEnrollmentsByUserId(Long userId);
+
   Long createLectureEnrollment(Long lectureId, Long lectureScheduleId, Long userId);
 
   void increaseEnrollmentCountByLectureScheduleId(Long lectureScheduleId);

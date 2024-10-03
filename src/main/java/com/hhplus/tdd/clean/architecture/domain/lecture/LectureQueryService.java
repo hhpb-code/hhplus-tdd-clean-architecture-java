@@ -4,6 +4,7 @@ import com.hhplus.tdd.clean.architecture.domain.lecture.dto.Lecture;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureEnrollment;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureQuery;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureQuery.FindAvailableLectureSchedulesByDate;
+import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureQuery.FindLectureEnrollmentsByUserId;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureSchedule;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -31,5 +32,10 @@ public class LectureQueryService {
   public LectureEnrollment getLectureEnrollmentById(
       LectureQuery.GetLectureEnrollmentById query) {
     return lectureRepository.getLectureEnrollmentById(query.lectureEnrollmentId());
+  }
+
+  public List<LectureEnrollment> findLectureEnrollments(
+      FindLectureEnrollmentsByUserId query) {
+    return lectureRepository.findLectureEnrollmentsByUserId(query.userId());
   }
 }

@@ -260,4 +260,32 @@ class LectureRepositoryTest {
         lectureScheduleEntity.getEnrolledCount() + 1);
   }
 
+  @Test
+  @DisplayName("findLectureEnrollmentsByUserId 테스트 성공")
+  void shouldSuccessfullyFindLectureEnrollmentsByUserId() {
+    // given
+    final Long userId = 1L;
+    final var lectureEnrollmentEntities = List.of(
+        lectureEnrollmentJpaRepository.save(new LectureEnrollmentEntity(1L, 1L, userId)),
+        lectureEnrollmentJpaRepository.save(new LectureEnrollmentEntity(2L, 2L, userId))
+    );
+    lectureEnrollmentJpaRepository.save(new LectureEnrollmentEntity(3L, 3L, userId + 1));
+
+    // when
+    final List<LectureEnrollment> result = target.findLectureEnrollmentsByUserId(userId);
+
+    // then
+    assertThat(result).hasSize(2);
+    for (int i = 0; i < result.size(); i++) {
+      final LectureEnrollment lectureEnrollment = result.get(i);
+      final LectureEnrollmentEntity lectureEnrollmentEntity = lectureEnrollmentEntities.get(i);
+
+      assertThat(lectureEnrollment.id()).isEqualTo(lectureEnrollmentEntity.getId());
+      assertThat(lectureEnrollment.lectureId()).isEqualTo(lectureEnrollmentEntity.getLectureId());
+      assertThat(lectureEnrollment.userId()).isEqualTo(lectureEnrollmentEntity.getUserId());
+      assertThat(lectureEnrollment.createdAt()).isNotNull();
+      assertThat(lectureEnrollment.updatedAt()).isNull();
+    }
+  }
+
 }

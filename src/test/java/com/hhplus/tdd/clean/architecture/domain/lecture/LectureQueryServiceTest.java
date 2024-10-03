@@ -6,6 +6,7 @@ import static org.mockito.Mockito.doReturn;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.Lecture;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureEnrollment;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureQuery;
+import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureQuery.FindLectureEnrollmentsByUserId;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureSchedule;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -120,6 +121,31 @@ class LectureQueryServiceTest {
     assertThat(result.lectureScheduleId()).isEqualTo(lectureEnrollment.lectureScheduleId());
     assertThat(result.createdAt()).isEqualTo(lectureEnrollment.createdAt());
     assertThat(result.updatedAt()).isEqualTo(lectureEnrollment.updatedAt());
+  }
+
+  @Test
+  @DisplayName("findLectureEnrollments 테스트 성공")
+  void shouldSuccessfullyFindLectureEnrollments() {
+    // given
+    final Long userId = 1L;
+    final LectureEnrollment lectureEnrollment = new LectureEnrollment(1L, 1L, 2L, userId,
+        LocalDateTime.now(), null);
+    doReturn(List.of(lectureEnrollment)).when(lectureRepository)
+        .findLectureEnrollmentsByUserId(userId);
+    final FindLectureEnrollmentsByUserId query = new FindLectureEnrollmentsByUserId(
+        userId);
+
+    // when
+    final List<LectureEnrollment> result = target.findLectureEnrollments(query);
+
+    // then
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0).id()).isEqualTo(lectureEnrollment.id());
+    assertThat(result.get(0).userId()).isEqualTo(lectureEnrollment.userId());
+    assertThat(result.get(0).lectureId()).isEqualTo(lectureEnrollment.lectureId());
+    assertThat(result.get(0).lectureScheduleId()).isEqualTo(lectureEnrollment.lectureScheduleId());
+    assertThat(result.get(0).createdAt()).isEqualTo(lectureEnrollment.createdAt());
+    assertThat(result.get(0).updatedAt()).isEqualTo(lectureEnrollment.updatedAt());
   }
 
 }
