@@ -4,6 +4,7 @@ import com.hhplus.tdd.clean.architecture.domain.lecture.dto.Lecture;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureEnrollment;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureQuery;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureQuery.FindAvailableLectureSchedulesByDate;
+import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureQuery.FindLectureEnrollmentByLectureScheduleIdAndUserId;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureQuery.FindLectureEnrollmentsByUserId;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureQuery.FindLecturesByIds;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureSchedule;
@@ -42,5 +43,12 @@ public class LectureQueryService {
 
   public List<Lecture> findLecturesByIds(FindLecturesByIds query) {
     return lectureRepository.findLecturesByIds(query.lectureIds());
+  }
+
+  public LectureEnrollment findLectureEnrollment(
+      FindLectureEnrollmentByLectureScheduleIdAndUserId query) {
+    return lectureRepository.findLectureEnrollmentByLectureScheduleIdAndUserId(
+        query.lectureScheduleId(),
+        query.userId());
   }
 }

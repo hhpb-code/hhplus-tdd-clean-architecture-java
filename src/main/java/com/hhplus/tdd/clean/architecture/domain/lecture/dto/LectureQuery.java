@@ -69,4 +69,18 @@ public class LectureQuery {
     }
   }
 
+  public record FindLectureEnrollmentByLectureScheduleIdAndUserId(Long lectureScheduleId,
+                                                                  Long userId) {
+
+    public FindLectureEnrollmentByLectureScheduleIdAndUserId {
+      if (lectureScheduleId == null || lectureScheduleId <= 0) {
+        throw new BusinessException(LectureErrorCode.INVALID_LECTURE_SCHEDULE_ID);
+      }
+
+      if (userId == null || userId <= 0) {
+        throw new BusinessException(LectureErrorCode.INVALID_USER_ID);
+      }
+    }
+  }
+
 }

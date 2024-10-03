@@ -45,6 +45,14 @@ public class LectureFacade {
       throw new BusinessException(LectureErrorCode.ENROLLMENT_EXCEED_CAPACITY);
     }
 
+    final var lectureEnrollment = lectureQueryService.findLectureEnrollment(
+        new LectureQuery.FindLectureEnrollmentByLectureScheduleIdAndUserId(lectureSchedule.id(),
+            user.id()));
+
+    if (lectureEnrollment != null) {
+      throw new BusinessException(LectureErrorCode.DUPLICATE_ENROLLMENT);
+    }
+
     final Long enrollmentId = lectureCommandService.createLectureEnrollment(
         new LectureCommand.CreateLectureEnrollment(lecture.id(), lectureSchedule.id(), user.id()));
 

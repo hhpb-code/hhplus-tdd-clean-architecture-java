@@ -320,4 +320,47 @@ class LectureRepositoryTest {
     }
   }
 
+  @Nested
+  @DisplayName("findLectureEnrollmentByLectureScheduleIdAndUserId 테스트")
+  class FindLectureEnrollmentByLectureScheduleIdAndUserIdTest {
+
+    @Test
+    @DisplayName("findLectureEnrollmentByLectureScheduleIdAndUserId 테스트 성공 - 존재하지 않는 enrollment")
+    void shouldReturnNullWhenFindLectureEnrollmentByLectureScheduleIdAndUserIdWithNonExistentEnrollment() {
+      // given
+      final Long lectureScheduleId = 1L;
+      final Long userId = 1L;
+
+      // when
+      final LectureEnrollment result = target.findLectureEnrollmentByLectureScheduleIdAndUserId(
+          lectureScheduleId, userId);
+
+      // then
+      assertThat(result).isNull();
+    }
+
+    @Test
+    @DisplayName("findLectureEnrollmentByLectureScheduleIdAndUserId 테스트 성공")
+    void shouldSuccessfullyFindLectureEnrollmentByLectureScheduleIdAndUserId() {
+      // given
+      final Long lectureId = 1L;
+      final Long lectureScheduleId = 1L;
+      final Long userId = 1L;
+      final LectureEnrollmentEntity lectureEnrollmentEntity = lectureEnrollmentJpaRepository.save(
+          new LectureEnrollmentEntity(lectureId, lectureScheduleId, userId));
+
+      // when
+      final LectureEnrollment result = target.findLectureEnrollmentByLectureScheduleIdAndUserId(
+          lectureScheduleId, userId);
+
+      // then
+      assertThat(result.id()).isEqualTo(lectureEnrollmentEntity.getId());
+      assertThat(result.lectureId()).isEqualTo(lectureId);
+      assertThat(result.lectureScheduleId()).isEqualTo(lectureScheduleId);
+      assertThat(result.userId()).isEqualTo(userId);
+      assertThat(result.createdAt()).isNotNull();
+      assertThat(result.updatedAt()).isNull();
+    }
+  }
+
 }

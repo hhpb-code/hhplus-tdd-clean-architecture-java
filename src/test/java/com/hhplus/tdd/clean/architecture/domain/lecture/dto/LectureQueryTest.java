@@ -406,4 +406,124 @@ class LectureQueryTest {
 
   }
 
+  @Nested
+  @DisplayName("FindLectureEnrollmentByLectureScheduleIdAndUserId 테스트")
+  class FindLectureEnrollmentByLectureScheduleIdAndUserIdTest {
+
+    @Test
+    @DisplayName("생성자 테스트 실패 - lectureScheduleId가 null")
+    void shouldThrowExceptionWhenLectureScheduleIdIsNull() {
+      // given
+      final Long lectureScheduleId = null;
+      final Long userId = 1L;
+
+      // when
+      final BusinessException result = assertThrows(BusinessException.class,
+          () -> new LectureQuery.FindLectureEnrollmentByLectureScheduleIdAndUserId(
+              lectureScheduleId, userId));
+
+      // then
+      assertThat(result.getMessage()).isEqualTo(
+          LectureErrorCode.INVALID_LECTURE_SCHEDULE_ID.getMessage());
+    }
+
+    @Test
+    @DisplayName("생성자 테스트 실패 - lectureScheduleId가 0")
+    void shouldThrowExceptionWhenLectureScheduleIdIsZero() {
+      // given
+      final Long lectureScheduleId = 0L;
+      final Long userId = 1L;
+
+      // when
+      final BusinessException result = assertThrows(BusinessException.class,
+          () -> new LectureQuery.FindLectureEnrollmentByLectureScheduleIdAndUserId(
+              lectureScheduleId, userId));
+
+      // then
+      assertThat(result.getMessage()).isEqualTo(
+          LectureErrorCode.INVALID_LECTURE_SCHEDULE_ID.getMessage());
+    }
+
+    @Test
+    @DisplayName("생성자 테스트 실패 - lectureScheduleId가 음수")
+    void shouldThrowExceptionWhenLectureScheduleIdIsNegative() {
+      // given
+      final Long lectureScheduleId = -1L;
+      final Long userId = 1L;
+
+      // when
+      final BusinessException result = assertThrows(BusinessException.class,
+          () -> new LectureQuery.FindLectureEnrollmentByLectureScheduleIdAndUserId(
+              lectureScheduleId, userId));
+
+      // then
+      assertThat(result.getMessage()).isEqualTo(
+          LectureErrorCode.INVALID_LECTURE_SCHEDULE_ID.getMessage());
+    }
+
+    @Test
+    @DisplayName("생성자 테스트 실패 - userId가 null")
+    void shouldThrowExceptionWhenUserIdIsNull() {
+      // given
+      final Long lectureScheduleId = 1L;
+      final Long userId = null;
+
+      // when
+      final BusinessException result = assertThrows(BusinessException.class,
+          () -> new LectureQuery.FindLectureEnrollmentByLectureScheduleIdAndUserId(
+              lectureScheduleId, userId));
+
+      // then
+      assertThat(result.getMessage()).isEqualTo(LectureErrorCode.INVALID_USER_ID.getMessage());
+    }
+
+    @Test
+    @DisplayName("생성자 테스트 실패 - userId가 0")
+    void shouldThrowExceptionWhenUserIdIsZero() {
+      // given
+      final Long lectureScheduleId = 1L;
+      final Long userId = 0L;
+
+      // when
+      final BusinessException result = assertThrows(BusinessException.class,
+          () -> new LectureQuery.FindLectureEnrollmentByLectureScheduleIdAndUserId(
+              lectureScheduleId, userId));
+
+      // then
+      assertThat(result.getMessage()).isEqualTo(LectureErrorCode.INVALID_USER_ID.getMessage());
+    }
+
+    @Test
+    @DisplayName("생성자 테스트 실패 - userId가 음수")
+    void shouldThrowExceptionWhenUserIdIsNegative() {
+      // given
+      final Long lectureScheduleId = 1L;
+      final Long userId = -1L;
+
+      // when
+      final BusinessException result = assertThrows(BusinessException.class,
+          () -> new LectureQuery.FindLectureEnrollmentByLectureScheduleIdAndUserId(
+              lectureScheduleId, userId));
+
+      // then
+      assertThat(result.getMessage()).isEqualTo(LectureErrorCode.INVALID_USER_ID.getMessage());
+    }
+
+    @Test
+    @DisplayName("생성자 테스트 성공")
+    void shouldSuccessfullyFindLectureEnrollmentByLectureScheduleIdAndUserId() {
+      // given
+      final Long lectureScheduleId = 1L;
+      final Long userId = 1L;
+
+      // when
+      final LectureQuery.FindLectureEnrollmentByLectureScheduleIdAndUserId result = new LectureQuery.FindLectureEnrollmentByLectureScheduleIdAndUserId(
+          lectureScheduleId, userId);
+
+      // then
+      assertThat(result.lectureScheduleId()).isEqualTo(lectureScheduleId);
+      assertThat(result.userId()).isEqualTo(userId);
+    }
+  }
+
 }

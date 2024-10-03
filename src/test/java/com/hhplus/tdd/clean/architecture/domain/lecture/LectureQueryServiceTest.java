@@ -11,6 +11,7 @@ import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureSchedule;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -176,6 +177,54 @@ class LectureQueryServiceTest {
       assertThat(lecture.lecturerId()).isEqualTo(expected.lecturerId());
       assertThat(lecture.createdAt()).isEqualTo(expected.createdAt());
       assertThat(lecture.updatedAt()).isEqualTo(expected.updatedAt());
+    }
+  }
+
+  @Nested
+  @DisplayName("findLectureEnrollmentByLectureScheduleIdAndUserId 테스트")
+  class FindLectureEnrollmentByLectureScheduleIdAndUserId {
+
+    @Test
+    @DisplayName("테스트 성공 - 강의 등록 정보가 존재하지 않는 경우")
+    void shouldSuccessfullyReturnNullWhenLectureEnrollmentDoesNotExist() {
+      // given
+      final Long lectureScheduleId = 1L;
+      final Long userId = 2L;
+      final LectureQuery.FindLectureEnrollmentByLectureScheduleIdAndUserId query = new LectureQuery.FindLectureEnrollmentByLectureScheduleIdAndUserId(
+          lectureScheduleId, userId);
+      doReturn(null).when(lectureRepository)
+          .findLectureEnrollmentByLectureScheduleIdAndUserId(lectureScheduleId, userId);
+
+      // when
+      final LectureEnrollment result = target.findLectureEnrollment(query);
+
+      // then
+      assertThat(result).isNull();
+    }
+
+    @Test
+    @DisplayName("테스트 성공 - 강의 등록 정보가 존재하는 경우")
+    void shouldSuccessfullyReturnLectureEnrollmentWhenLectureEnrollmentExists() {
+      // given
+      final Long lectureScheduleId = 1L;
+      final Long userId = 2L;
+      final LectureEnrollment lectureEnrollment = new LectureEnrollment(1L, 1L, 2L, 3L,
+          LocalDateTime.now(), null);
+      final LectureQuery.FindLectureEnrollmentByLectureScheduleIdAndUserId query = new LectureQuery.FindLectureEnrollmentByLectureScheduleIdAndUserId(
+          lectureScheduleId, userId);
+      doReturn(lectureEnrollment).when(lectureRepository)
+          .findLectureEnrollmentByLectureScheduleIdAndUserId(lectureScheduleId, userId);
+
+      // when
+      final LectureEnrollment result = target.findLectureEnrollment(query);
+
+      // then
+      assertThat(result.id()).isEqualTo(lectureEnrollment.id());
+      assertThat(result.lectureId()).isEqualTo(lectureEnrollment.lectureId());
+      assertThat(result.lectureScheduleId()).isEqualTo(lectureEnrollment.lectureScheduleId());
+      assertThat(result.userId()).isEqualTo(lectureEnrollment.userId());
+      assertThat(result.createdAt()).isEqualTo(lectureEnrollment.createdAt());
+      assertThat(result.updatedAt()).isEqualTo(lectureEnrollment.updatedAt());
     }
   }
 

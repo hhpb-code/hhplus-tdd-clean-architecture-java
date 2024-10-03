@@ -90,4 +90,13 @@ public class LectureRepositoryImpl implements LectureRepository {
     entity.increaseEnrollmentCount();
     lectureScheduleJpaRepository.save(entity);
   }
+
+  @Override
+  public LectureEnrollment findLectureEnrollmentByLectureScheduleIdAndUserId(Long lectureScheduleId,
+      Long userId) {
+    return lectureEnrollmentJpaRepository.findByLectureScheduleIdAndUserId(lectureScheduleId,
+            userId)
+        .map(LectureEnrollmentEntity::toLectureEnrollment)
+        .orElse(null);
+  }
 }

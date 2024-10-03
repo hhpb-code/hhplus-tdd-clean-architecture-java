@@ -143,6 +143,32 @@ class LectureFacadeIntegrationTest {
     }
 
     @Test
+    @DisplayName("수강 신청 실패 - 이미 수강 신청한 경우")
+    void shouldThrowBusinessExceptionWhenAlreadyEnrolled() {
+      // given
+      final UserEntity userEntity = userJpaRepository.save(
+          new UserEntity(null, "name", "password"));
+      final LectureEntity lectureEntity = lectureJpaRepository.save(
+          new LectureEntity(null, "title", "description", 2L));
+      final LectureScheduleEntity lectureScheduleEntity = lectureScheduleJpaRepository.save(
+          new LectureScheduleEntity(null, lectureEntity.getId(), 30, 0, LocalDateTime.now(),
+              LocalDateTime.now().plusHours(1)));
+      final Long userId = userEntity.getId();
+      final Long lectureId = lectureEntity.getId();
+      final Long lectureScheduleId = lectureScheduleEntity.getId();
+      lectureEnrollmentJpaRepository.save(
+          new LectureEnrollmentEntity(lectureId, lectureScheduleId, userId));
+
+      // when
+      final BusinessException result = assertThrows(BusinessException.class, () -> {
+        target.enrollLecture(lectureId, lectureScheduleId, userId);
+      });
+
+      // then
+      assertThat(result.getMessage()).isEqualTo(LectureErrorCode.DUPLICATE_ENROLLMENT.getMessage());
+    }
+
+    @Test
     @DisplayName("수강 신청 성공")
     void shouldSuccessfullyEnrollLecture() {
       // given
@@ -248,6 +274,46 @@ class LectureFacadeIntegrationTest {
           .findAllByLectureScheduleId(lectureScheduleId);
       assertThat(lectureEnrollments).hasSize(30);
     }
+
+    @Test
+    @DisplayName("수강 신청 성공 동시성 테스트 - 동일 유저 중복 신청")
+    void shouldSuccessfullyEnrollLectureWithConcurrencyWhenAlreadyEnrolled() {
+      // given
+      final UserEntity userEntity = userJpaRepository.save(
+          new UserEntity(null, "name", "password"));
+      final LectureEntity lectureEntity = lectureJpaRepository.save(
+          new LectureEntity(null, "title", "description", 2L));
+      final LectureScheduleEntity lectureScheduleEntity = lectureScheduleJpaRepository.save(
+          new LectureScheduleEntity(null, lectureEntity.getId(), 30, 0, LocalDateTime.now(),
+              LocalDateTime.now().plusHours(1)));
+      final Long userId = userEntity.getId();
+      final Long lectureId = lectureEntity.getId();
+      final Long lectureScheduleId = lectureScheduleEntity.getId();
+      final int threadCount = 5;
+
+      // when
+      final List<CompletableFuture<Void>> futures = IntStream.range(0, threadCount)
+          .mapToObj(i -> CompletableFuture.runAsync(() -> {
+            try {
+              target.enrollLecture(lectureId, lectureScheduleId, userId);
+            } catch (BusinessException e) {
+              assertThat(e.getMessage()).isEqualTo(LectureErrorCode.DUPLICATE_ENROLLMENT
+                  .getMessage());
+            }
+          }))
+          .toList();
+      CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+
+      // then
+      final List<LectureEnrollmentEntity> lectureEnrollments = lectureEnrollmentJpaRepository
+          .findAllByLectureScheduleId(lectureScheduleId);
+      assertThat(lectureEnrollments).hasSize(1);
+      final var lectureEnrollment = lectureEnrollments.get(0);
+      assertThat(lectureEnrollment.getLectureId()).isEqualTo(lectureId);
+      assertThat(lectureEnrollment.getLectureScheduleId()).isEqualTo(lectureScheduleId);
+      assertThat(lectureEnrollment.getUserId()).isEqualTo(userId);
+    }
+
   }
 
   @Test
