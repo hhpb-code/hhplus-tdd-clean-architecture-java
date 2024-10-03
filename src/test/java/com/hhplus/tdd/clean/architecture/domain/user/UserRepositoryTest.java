@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.hhplus.tdd.clean.architecture.domain.common.error.BusinessException;
 import com.hhplus.tdd.clean.architecture.infrastructure.db.user.UserEntity;
 import com.hhplus.tdd.clean.architecture.infrastructure.db.user.UserJpaRepository;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -57,6 +58,35 @@ class UserRepositoryTest {
     assertThat(result.name()).isEqualTo(userEntity.getName());
     assertThat(result.createdAt()).isNotNull();
     assertThat(result.updatedAt()).isNull();
+  }
+
+  @Test
+  @DisplayName("findUsersByIds 테스트 성공")
+  void shouldSuccessfullyFindUsersByIds() {
+    // given
+    final List<UserEntity> userEntities = userJpaRepository.saveAll(List.of(
+        new UserEntity(null, "test1", "password", null, null),
+        new UserEntity(null, "test2", "password", null, null)
+    ));
+    userJpaRepository.save(new UserEntity(null, "test3", "password", null, null));
+
+    final List<Long> userIds = userEntities.stream()
+        .map(UserEntity::getId)
+        .toList();
+
+    // when
+    final List<User> result = target.findUsersByIds(userIds);
+
+    // then
+    assertThat(result).hasSize(2);
+    for (int i = 0; i < result.size(); i++) {
+      final User user = result.get(i);
+      final UserEntity userEntity = userEntities.get(i);
+      assertThat(user.id()).isEqualTo(userEntity.getId());
+      assertThat(user.name()).isEqualTo(userEntity.getName());
+      assertThat(user.createdAt()).isNotNull();
+      assertThat(user.updatedAt()).isNull();
+    }
   }
 
 }

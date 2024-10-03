@@ -6,6 +6,7 @@ import com.hhplus.tdd.clean.architecture.domain.user.UserErrorCode;
 import com.hhplus.tdd.clean.architecture.domain.user.UserRepository;
 import com.hhplus.tdd.clean.architecture.infrastructure.db.user.UserEntity;
 import com.hhplus.tdd.clean.architecture.infrastructure.db.user.UserJpaRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -20,5 +21,13 @@ public class UserRepositoryImpl implements UserRepository {
     return userJpaRepository.findById(userId)
         .map(UserEntity::toUser)
         .orElseThrow(() -> new BusinessException(UserErrorCode.USER_NOT_FOUND));
+  }
+
+  @Override
+  public List<User> findUsersByIds(List<Long> userIds) {
+    return userJpaRepository.findAllById(userIds)
+        .stream()
+        .map(UserEntity::toUser)
+        .toList();
   }
 }

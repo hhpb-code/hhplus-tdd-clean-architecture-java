@@ -1,6 +1,7 @@
 package com.hhplus.tdd.clean.architecture.domain.user;
 
 import com.hhplus.tdd.clean.architecture.domain.user.dto.UserQuery;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,4 +15,7 @@ public class UserQueryService {
     return userRepository.getUserById(query.userId());
   }
 
+  public List<User> findUsers(UserQuery.FindUsersByIds query) {
+    return userRepository.findUsersByIds(query.userIds());
+  }
 }
