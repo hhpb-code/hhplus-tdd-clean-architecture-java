@@ -32,7 +32,6 @@ public class LectureFacade {
   private final LectureCommandService lectureCommandService;
   private final UserQueryService userQueryService;
 
-  // TODO: 동일 특강 중복 등록 체크 구현 (STEP 4)
   @Transactional
   public LectureEnrollment enrollLecture(Long lectureId, Long lectureScheduleId, Long userId) {
     final var user = userQueryService.getUserById(new UserQuery.GetUserById(userId));

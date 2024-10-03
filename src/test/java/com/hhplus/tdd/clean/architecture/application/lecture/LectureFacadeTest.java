@@ -3,6 +3,7 @@ package com.hhplus.tdd.clean.architecture.application.lecture;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 
 import com.hhplus.tdd.clean.architecture.domain.common.error.BusinessException;
 import com.hhplus.tdd.clean.architecture.domain.lecture.LectureCommandService;
@@ -74,6 +75,38 @@ class LectureFacadeTest {
       // then
       assertThat(result.getMessage()).isEqualTo(
           LectureErrorCode.ENROLLMENT_EXCEED_CAPACITY.getMessage());
+    }
+
+    @Test
+    @DisplayName("enrollLecture 테스트 실패 - 중복 수강 신청")
+    void shouldThrowExceptionWhenDuplicateEnrollment() {
+      // given
+      final Long userId = 1L;
+      final Long lectureId = 1L;
+      final Long lectureScheduleId = 1L;
+      final User user = new User(userId, "name", null, null);
+      final Lecture lecture = new Lecture(lectureId, "title", "description", 2L, null, null);
+      final LectureSchedule lectureSchedule = new LectureSchedule(lectureScheduleId, lectureId, 30,
+          0,
+          null, null, null, null);
+
+      doReturn(user).when(userQueryService).getUserById(new UserQuery.GetUserById(userId));
+      doReturn(lecture).when(lectureQueryService)
+          .getLectureById(new LectureQuery.GetLectureById(lectureId));
+      doReturn(lectureSchedule).when(lectureQueryService).getLectureScheduleById(
+          new LectureQuery.GetLectureScheduleById(lectureScheduleId, true));
+      doThrow(new BusinessException(LectureErrorCode.DUPLICATE_ENROLLMENT)).when(
+              lectureCommandService)
+          .createLectureEnrollment(
+              new LectureCommand.CreateLectureEnrollment(lectureId, lectureScheduleId, userId));
+
+      // when
+      final var result = assertThrows(BusinessException.class,
+          () -> target.enrollLecture(lectureId, lectureScheduleId, userId));
+
+      // then
+      assertThat(result.getMessage()).isEqualTo(
+          LectureErrorCode.DUPLICATE_ENROLLMENT.getMessage());
     }
 
     @Test

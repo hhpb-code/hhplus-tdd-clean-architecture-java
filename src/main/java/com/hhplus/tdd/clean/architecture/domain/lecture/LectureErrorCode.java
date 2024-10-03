@@ -18,6 +18,7 @@ public enum LectureErrorCode implements ErrorCode {
   LECTURE_SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "강의 스케줄을 찾을 수 없습니다."),
   LECTURE_ENROLLMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "강의 등록을 찾을 수 없습니다."),
   ENROLLMENT_EXCEED_CAPACITY(HttpStatus.BAD_REQUEST, "강의 등록이 정원을 초과했습니다."),
+  DUPLICATE_ENROLLMENT(HttpStatus.BAD_REQUEST, "이미 등록된 강의입니다."),
   ;
 
 
