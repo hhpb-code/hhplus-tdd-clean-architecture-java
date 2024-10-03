@@ -65,6 +65,14 @@ public class LectureRepositoryImpl implements LectureRepository {
   }
 
   @Override
+  public List<Lecture> findLecturesByIds(List<Long> lectureIds) {
+    return lectureJpaRepository.findAllById(lectureIds)
+        .stream()
+        .map(LectureEntity::toLecture)
+        .toList();
+  }
+
+  @Override
   public Long createLectureEnrollment(Long lectureId, Long lectureScheduleId, Long userId) {
     return lectureEnrollmentJpaRepository.save(
         new LectureEnrollmentEntity(lectureId, lectureScheduleId, userId)).getId();

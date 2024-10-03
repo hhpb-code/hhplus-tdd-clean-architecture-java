@@ -148,4 +148,34 @@ class LectureQueryServiceTest {
     assertThat(result.get(0).updatedAt()).isEqualTo(lectureEnrollment.updatedAt());
   }
 
+  @Test
+  @DisplayName("findLecturesByIds 테스트 성공")
+  void shouldSuccessfullyFindLecturesByIds() {
+    // given
+    final List<Long> lectureIds = List.of(1L, 2L);
+    final List<Lecture> lectures = List.of(
+        new Lecture(1L, "title1", "description1", 1L, LocalDateTime.now(), null),
+        new Lecture(2L, "title2", "description2", 2L, LocalDateTime.now(), null)
+    );
+    final LectureQuery.FindLecturesByIds query = new LectureQuery.FindLecturesByIds(lectureIds);
+    doReturn(lectures).when(lectureRepository).findLecturesByIds(lectureIds);
+
+    // when
+    final List<Lecture> result = target.findLecturesByIds(query);
+
+    // then
+    assertThat(result).hasSize(2);
+    for (int i = 0; i < result.size(); i++) {
+      final var lecture = result.get(i);
+      final var expected = lectures.get(i);
+
+      assertThat(lecture.id()).isEqualTo(expected.id());
+      assertThat(lecture.title()).isEqualTo(expected.title());
+      assertThat(lecture.description()).isEqualTo(expected.description());
+      assertThat(lecture.lecturerId()).isEqualTo(expected.lecturerId());
+      assertThat(lecture.createdAt()).isEqualTo(expected.createdAt());
+      assertThat(lecture.updatedAt()).isEqualTo(expected.updatedAt());
+    }
+  }
+
 }

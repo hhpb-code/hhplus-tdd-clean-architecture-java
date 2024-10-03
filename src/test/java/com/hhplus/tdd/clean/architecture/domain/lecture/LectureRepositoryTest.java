@@ -288,4 +288,35 @@ class LectureRepositoryTest {
     }
   }
 
+  @Test
+  @DisplayName("findLecturesByIds 테스트 성공")
+  void shouldSuccessfullyFindLecturesByIds() {
+    // given
+    final List<LectureEntity> lectureEntities = List.of(
+        lectureJpaRepository.save(new LectureEntity(null, "title1", "description1", 1L)),
+        lectureJpaRepository.save(new LectureEntity(null, "title2", "description2", 2L))
+    );
+    final List<Long> lectureIds = lectureEntities.stream()
+        .map(LectureEntity::getId)
+        .toList();
+    lectureJpaRepository.save(new LectureEntity(null, "title3", "description3", 3L));
+
+    // when
+    final List<Lecture> result = target.findLecturesByIds(lectureIds);
+
+    // then
+    assertThat(result).hasSize(2);
+    for (int i = 0; i < result.size(); i++) {
+      final Lecture lecture = result.get(i);
+      final LectureEntity lectureEntity = lectureEntities.get(i);
+
+      assertThat(lecture.id()).isEqualTo(lectureEntity.getId());
+      assertThat(lecture.title()).isEqualTo(lectureEntity.getTitle());
+      assertThat(lecture.description()).isEqualTo(lectureEntity.getDescription());
+      assertThat(lecture.lecturerId()).isEqualTo(lectureEntity.getLecturerId());
+      assertThat(lecture.createdAt()).isNotNull();
+      assertThat(lecture.updatedAt()).isNull();
+    }
+  }
+
 }

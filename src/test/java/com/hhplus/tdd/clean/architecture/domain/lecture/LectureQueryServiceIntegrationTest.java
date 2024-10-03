@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.Lecture;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureQuery;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureQuery.FindLectureEnrollmentsByUserId;
+import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureQuery.FindLecturesByIds;
 import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureEnrollmentEntity;
 import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureEnrollmentJpaRepository;
 import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureEntity;
@@ -173,6 +174,37 @@ class LectureQueryServiceIntegrationTest {
       assertThat(lectureEnrollment.userId()).isEqualTo(lectureEnrollmentEntity.getUserId());
       assertThat(lectureEnrollment.createdAt()).isNotNull();
       assertThat(lectureEnrollment.updatedAt()).isNull();
+    }
+  }
+
+  @Test
+  @DisplayName("findLecturesByIds 테스트 성공")
+  void shouldSuccessfullyFindLecturesByIds() {
+    // given
+    final var lectureEntities = List.of(
+        lectureJpaRepository.save(new LectureEntity(null, "title1", "description1", 1L)),
+        lectureJpaRepository.save(new LectureEntity(null, "title2", "description2", 2L))
+    );
+    lectureJpaRepository.save(new LectureEntity(null, "title3", "description3", 3L));
+    final var lectureIds = lectureEntities.stream()
+        .map(LectureEntity::getId)
+        .toList();
+
+    // when
+    final var result = target.findLecturesByIds(new FindLecturesByIds(lectureIds));
+
+    // then
+    assertThat(result).hasSize(2);
+    for (int i = 0; i < result.size(); i++) {
+      final var lecture = result.get(i);
+      final var lectureEntity = lectureEntities.get(i);
+
+      assertThat(lecture.id()).isEqualTo(lectureEntity.getId());
+      assertThat(lecture.title()).isEqualTo(lectureEntity.getTitle());
+      assertThat(lecture.description()).isEqualTo(lectureEntity.getDescription());
+      assertThat(lecture.lecturerId()).isEqualTo(lectureEntity.getLecturerId());
+      assertThat(lecture.createdAt()).isNotNull();
+      assertThat(lecture.updatedAt()).isNull();
     }
   }
 

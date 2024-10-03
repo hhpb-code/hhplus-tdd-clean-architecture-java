@@ -8,6 +8,8 @@ import com.hhplus.tdd.clean.architecture.domain.lecture.LectureErrorCode;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureQuery.FindAvailableLectureSchedulesByDate;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureQuery.FindLectureEnrollmentsByUserId;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -310,6 +312,98 @@ class LectureQueryTest {
       // then
       assertThat(result.userId()).isEqualTo(userId);
     }
+  }
+
+  @Nested
+  @DisplayName("FindLecturesByIds 테스트")
+  class FindLecturesByIdsTest {
+
+    @Test
+    @DisplayName("생성자 테스트 실패 - lectureIds가 null")
+    void shouldThrowExceptionWhenLectureIdsIsNull() {
+      // given
+      final List<Long> lectureIds = null;
+
+      // when
+      final BusinessException result = assertThrows(BusinessException.class,
+          () -> new LectureQuery.FindLecturesByIds(lectureIds));
+
+      // then
+      assertThat(result.getMessage()).isEqualTo(LectureErrorCode.INVALID_LECTURE_IDS.getMessage());
+    }
+
+    @Test
+    @DisplayName("생성자 테스트 실패 - lectureIds가 비어있음")
+    void shouldThrowExceptionWhenLectureIdsIsEmpty() {
+      // given
+      final List<Long> lectureIds = List.of();
+
+      // when
+      final BusinessException result = assertThrows(BusinessException.class,
+          () -> new LectureQuery.FindLecturesByIds(lectureIds));
+
+      // then
+      assertThat(result.getMessage()).isEqualTo(LectureErrorCode.INVALID_LECTURE_IDS.getMessage());
+    }
+
+    @Test
+    @DisplayName("생성자 테스트 실패 - lectureIds에 null이 포함됨")
+    void shouldThrowExceptionWhenLectureIdsContainsNull() {
+      // given
+      final List<Long> lectureIds = new ArrayList<>();
+      lectureIds.add(1L);
+      lectureIds.add(null);
+      lectureIds.add(3L);
+
+      // when
+      final BusinessException result = assertThrows(BusinessException.class,
+          () -> new LectureQuery.FindLecturesByIds(lectureIds));
+
+      // then
+      assertThat(result.getMessage()).isEqualTo(LectureErrorCode.INVALID_LECTURE_IDS.getMessage());
+    }
+
+    @Test
+    @DisplayName("생성자 테스트 실패 - lectureIds에 0이 포함됨")
+    void shouldThrowExceptionWhenLectureIdsContainsZero() {
+      // given
+      final List<Long> lectureIds = List.of(1L, 0L, 3L);
+
+      // when
+      final BusinessException result = assertThrows(BusinessException.class,
+          () -> new LectureQuery.FindLecturesByIds(lectureIds));
+
+      // then
+      assertThat(result.getMessage()).isEqualTo(LectureErrorCode.INVALID_LECTURE_IDS.getMessage());
+    }
+
+    @Test
+    @DisplayName("생성자 테스트 실패 - lectureIds에 음수가 포함됨")
+    void shouldThrowExceptionWhenLectureIdsContainsNegative() {
+      // given
+      final List<Long> lectureIds = List.of(1L, -1L, 3L);
+
+      // when
+      final BusinessException result = assertThrows(BusinessException.class,
+          () -> new LectureQuery.FindLecturesByIds(lectureIds));
+
+      // then
+      assertThat(result.getMessage()).isEqualTo(LectureErrorCode.INVALID_LECTURE_IDS.getMessage());
+    }
+
+    @Test
+    @DisplayName("생성자 테스트 성공")
+    void shouldSuccessfullyFindLecturesByIds() {
+      // given
+      final List<Long> lectureIds = List.of(1L, 2L, 3L);
+
+      // when
+      final LectureQuery.FindLecturesByIds result = new LectureQuery.FindLecturesByIds(lectureIds);
+
+      // then
+      assertThat(result.lectureIds()).isEqualTo(lectureIds);
+    }
+
   }
 
 }

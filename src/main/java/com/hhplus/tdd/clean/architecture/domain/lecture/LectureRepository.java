@@ -18,6 +18,8 @@ public interface LectureRepository {
 
   List<LectureEnrollment> findLectureEnrollmentsByUserId(Long userId);
 
+  List<Lecture> findLecturesByIds(List<Long> lectureIds);
+
   Long createLectureEnrollment(Long lectureId, Long lectureScheduleId, Long userId);
 
   void increaseEnrollmentCountByLectureScheduleId(Long lectureScheduleId);
