@@ -7,7 +7,6 @@ import com.hhplus.tdd.clean.architecture.domain.common.error.BusinessException;
 import com.hhplus.tdd.clean.architecture.domain.user.dto.UserQuery;
 import com.hhplus.tdd.clean.architecture.infrastructure.db.user.UserEntity;
 import com.hhplus.tdd.clean.architecture.infrastructure.db.user.UserJpaRepository;
-import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,7 +15,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 @DisplayName("UserQueryService 통합 테스트")
-@Transactional
 class UserQueryServiceIntegrationTest {
 
   @Autowired
