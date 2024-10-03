@@ -8,6 +8,7 @@ import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureEnrollment;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureQuery;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureSchedule;
 import java.time.LocalDateTime;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -70,6 +71,31 @@ class LectureQueryServiceTest {
     assertThat(result.enrolledCount()).isEqualTo(lectureSchedule.enrolledCount());
     assertThat(result.startAt()).isEqualTo(lectureSchedule.startAt());
     assertThat(result.endAt()).isEqualTo(lectureSchedule.endAt());
+  }
+
+  @Test
+  @DisplayName("findAvailableLectureSchedules 테스트 성공")
+  void shouldSuccessfullyFindAvailableLectureSchedules() {
+    // given
+    final LocalDateTime now = LocalDateTime.now();
+    final LectureQuery.FindAvailableLectureSchedulesByDate query = new LectureQuery.FindAvailableLectureSchedulesByDate(
+        now.toLocalDate());
+    final LectureSchedule lectureSchedule = new LectureSchedule(1L, 1L, 30, 0, now, now, null,
+        null);
+    doReturn(List.of(lectureSchedule)).when(lectureRepository)
+        .findAvailableLectureSchedulesByDate(now.toLocalDate());
+
+    // when
+    final List<LectureSchedule> result = target.findAvailableLectureSchedules(query);
+
+    // then
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0).id()).isEqualTo(lectureSchedule.id());
+    assertThat(result.get(0).lectureId()).isEqualTo(lectureSchedule.lectureId());
+    assertThat(result.get(0).capacity()).isEqualTo(lectureSchedule.capacity());
+    assertThat(result.get(0).enrolledCount()).isEqualTo(lectureSchedule.enrolledCount());
+    assertThat(result.get(0).startAt()).isEqualTo(lectureSchedule.startAt());
+    assertThat(result.get(0).endAt()).isEqualTo(lectureSchedule.endAt());
   }
 
   @Test

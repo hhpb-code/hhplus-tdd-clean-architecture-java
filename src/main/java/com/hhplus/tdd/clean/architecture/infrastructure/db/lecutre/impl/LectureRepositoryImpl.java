@@ -12,6 +12,8 @@ import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureEntity
 import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureJpaRepository;
 import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureScheduleEntity;
 import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureScheduleJpaRepository;
+import java.time.LocalDate;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -35,6 +37,16 @@ public class LectureRepositoryImpl implements LectureRepository {
     return lectureScheduleJpaRepository.findById(lectureScheduleId)
         .map(LectureScheduleEntity::toLectureSchedule)
         .orElseThrow(() -> new BusinessException(LectureErrorCode.LECTURE_SCHEDULE_NOT_FOUND));
+  }
+
+  @Override
+  public List<LectureSchedule> findAvailableLectureSchedulesByDate(LocalDate date) {
+    return lectureScheduleJpaRepository.findAvailableByStartAtBetween(
+            date.atStartOfDay(),
+            date.plusDays(1).atStartOfDay())
+        .stream()
+        .map(LectureScheduleEntity::toLectureSchedule)
+        .toList();
   }
 
   @Override

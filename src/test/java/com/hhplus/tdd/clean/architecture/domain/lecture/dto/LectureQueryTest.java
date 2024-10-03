@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.hhplus.tdd.clean.architecture.domain.common.error.BusinessException;
 import com.hhplus.tdd.clean.architecture.domain.lecture.LectureErrorCode;
+import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureQuery.FindAvailableLectureSchedulesByDate;
+import java.time.LocalDate;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -134,6 +136,54 @@ class LectureQueryTest {
       // then
       assertThat(result.lectureScheduleId()).isEqualTo(lectureScheduleId);
     }
+  }
+
+  @Nested
+  @DisplayName("FindAvailableLectureSchedulesByDate 테스트")
+  class FindAvailableLectureSchedulesByDateTest {
+
+    @Test
+    @DisplayName("생성자 테스트 실패 - date가 null")
+    void shouldThrowExceptionWhenDateIsNull() {
+      // given
+      final LocalDate date = null;
+
+      // when
+      final BusinessException result = assertThrows(BusinessException.class,
+          () -> new FindAvailableLectureSchedulesByDate(date));
+
+      // then
+      assertThat(result.getMessage()).isEqualTo(LectureErrorCode.INVALID_DATE.getMessage());
+    }
+
+    @Test
+    @DisplayName("생성자 테스트 실패 - date가 현재 날짜 이전")
+    void shouldThrowExceptionWhenDateIsBeforeCurrentDate() {
+      // given
+      final LocalDate date = LocalDate.now().minusDays(1);
+
+      // when
+      final BusinessException result = assertThrows(BusinessException.class,
+          () -> new FindAvailableLectureSchedulesByDate(date));
+
+      // then
+      assertThat(result.getMessage()).isEqualTo(LectureErrorCode.INVALID_DATE.getMessage());
+    }
+
+    @Test
+    @DisplayName("생성자 테스트 성공")
+    void shouldSuccessfullyFindAvailableLectureSchedulesByDate() {
+      // given
+      final LocalDate date = LocalDate.now();
+
+      // when
+      final FindAvailableLectureSchedulesByDate result = new FindAvailableLectureSchedulesByDate(
+          date);
+
+      // then
+      assertThat(result.date()).isEqualTo(date);
+    }
+
   }
 
   @Nested

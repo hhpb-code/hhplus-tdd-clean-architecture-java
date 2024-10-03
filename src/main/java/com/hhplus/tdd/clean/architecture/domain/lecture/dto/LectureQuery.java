@@ -2,6 +2,7 @@ package com.hhplus.tdd.clean.architecture.domain.lecture.dto;
 
 import com.hhplus.tdd.clean.architecture.domain.common.error.BusinessException;
 import com.hhplus.tdd.clean.architecture.domain.lecture.LectureErrorCode;
+import java.time.LocalDate;
 
 public class LectureQuery {
 
@@ -19,6 +20,15 @@ public class LectureQuery {
     public GetLectureScheduleById {
       if (lectureScheduleId == null || lectureScheduleId <= 0) {
         throw new BusinessException(LectureErrorCode.INVALID_LECTURE_SCHEDULE_ID);
+      }
+    }
+  }
+
+  public record FindAvailableLectureSchedulesByDate(LocalDate date) {
+
+    public FindAvailableLectureSchedulesByDate {
+      if (date == null || date.isBefore(LocalDate.now())) {
+        throw new BusinessException(LectureErrorCode.INVALID_DATE);
       }
     }
   }

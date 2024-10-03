@@ -3,7 +3,9 @@ package com.hhplus.tdd.clean.architecture.domain.lecture;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.Lecture;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureEnrollment;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureQuery;
+import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureQuery.FindAvailableLectureSchedulesByDate;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureSchedule;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +21,11 @@ public class LectureQueryService {
 
   public LectureSchedule getLectureScheduleById(LectureQuery.GetLectureScheduleById query) {
     return lectureRepository.getLectureScheduleById(query.lectureScheduleId());
+  }
+
+  public List<LectureSchedule> findAvailableLectureSchedules(
+      FindAvailableLectureSchedulesByDate query) {
+    return lectureRepository.findAvailableLectureSchedulesByDate(query.date());
   }
 
   public LectureEnrollment getLectureEnrollmentById(

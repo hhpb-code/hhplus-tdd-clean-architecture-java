@@ -11,6 +11,7 @@ import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureJpaRep
 import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureScheduleEntity;
 import com.hhplus.tdd.clean.architecture.infrastructure.db.lecutre.LectureScheduleJpaRepository;
 import java.time.LocalDateTime;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -85,6 +86,47 @@ class LectureQueryServiceIntegrationTest {
   }
 
   @Test
+  @DisplayName("findAvailableLectureSchedulesByDate 테스트 성공")
+  void shouldSuccessfullyFindAvailableLectureSchedulesByDate() {
+    // given
+    final LocalDateTime now = LocalDateTime.now();
+    final LectureQuery.FindAvailableLectureSchedulesByDate query = new LectureQuery.FindAvailableLectureSchedulesByDate(
+        now.toLocalDate());
+    final var lectureScheduleEntities = List.of(
+        lectureScheduleJpaRepository.save(
+            new LectureScheduleEntity(null, 1L, 30, 0, now, now)),
+        lectureScheduleJpaRepository.save(
+            new LectureScheduleEntity(null, 2L, 10, 5, now, now))
+    );
+    lectureScheduleJpaRepository.save(
+        new LectureScheduleEntity(null, 3L, 10, 10, now, now));
+    lectureScheduleJpaRepository.save(
+        new LectureScheduleEntity(null, 3L, 30, 0, now.minusDays(1), now.minusDays(1)));
+    lectureScheduleJpaRepository.save(
+        new LectureScheduleEntity(null, 4L, 30, 0, now.plusDays(1), now.plusDays(1)));
+
+    // when
+    final var result = target.findAvailableLectureSchedules(query);
+
+    // then
+    assertThat(result).hasSize(2);
+    for (int i = 0; i < result.size(); i++) {
+      final var lectureSchedule = result.get(i);
+      final var lectureScheduleEntity = lectureScheduleEntities.get(i);
+
+      assertThat(lectureSchedule.id()).isEqualTo(lectureScheduleEntity.getId());
+      assertThat(lectureSchedule.lectureId()).isEqualTo(lectureScheduleEntity.getLectureId());
+      assertThat(lectureSchedule.capacity()).isEqualTo(lectureScheduleEntity.getCapacity());
+      assertThat(lectureSchedule.enrolledCount()).isEqualTo(
+          lectureScheduleEntity.getEnrolledCount());
+      assertThat(lectureSchedule.startAt()).isNotNull();
+      assertThat(lectureSchedule.endAt()).isNotNull();
+      assertThat(lectureSchedule.createdAt()).isNotNull();
+      assertThat(lectureSchedule.updatedAt()).isNull();
+    }
+  }
+
+  @Test
   @DisplayName("getLectureEnrollmentById 테스트 성공")
   void shouldSuccessfullyGetLectureEnrollmentById() {
     // given
@@ -103,4 +145,5 @@ class LectureQueryServiceIntegrationTest {
     assertThat(result.createdAt()).isNotNull();
     assertThat(result.updatedAt()).isNull();
   }
+
 }

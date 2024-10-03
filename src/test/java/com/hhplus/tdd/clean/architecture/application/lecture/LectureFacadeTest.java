@@ -9,10 +9,13 @@ import com.hhplus.tdd.clean.architecture.domain.lecture.dto.Lecture;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureCommand;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureEnrollment;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureQuery;
+import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureQuery.FindAvailableLectureSchedulesByDate;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureSchedule;
 import com.hhplus.tdd.clean.architecture.domain.user.User;
 import com.hhplus.tdd.clean.architecture.domain.user.UserQueryService;
 import com.hhplus.tdd.clean.architecture.domain.user.dto.UserQuery;
+import java.time.LocalDateTime;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -72,6 +75,39 @@ class LectureFacadeTest {
     assertThat(result.userId()).isEqualTo(userId);
     assertThat(result.createdAt()).isEqualTo(lectureEnrollment.createdAt());
     assertThat(result.updatedAt()).isEqualTo(lectureEnrollment.updatedAt());
+  }
+
+  @Test
+  @DisplayName("getAvailableLectureSchedules 테스트 성공")
+  void shouldSuccessfullyGetAvailableLectureSchedules() {
+    // given
+    final LocalDateTime now = LocalDateTime.now();
+    final var lectureSchedules = List.of(
+        new LectureSchedule(1L, 1L, 30, 0, now, now, now, null),
+        new LectureSchedule(2L, 2L, 10, 5, now, now, now, null)
+    );
+    doReturn(lectureSchedules).when(lectureQueryService)
+        .findAvailableLectureSchedules(
+            new FindAvailableLectureSchedulesByDate(now.toLocalDate()));
+
+    // when
+    final var result = target.getAvailableLectureSchedules(now.toLocalDate());
+
+    // then
+    assertThat(result).hasSize(2);
+    for (int i = 0; i < result.size(); i++) {
+      final var lectureSchedule = result.get(i);
+      final var expected = lectureSchedules.get(i);
+
+      assertThat(lectureSchedule.id()).isEqualTo(expected.id());
+      assertThat(lectureSchedule.lectureId()).isEqualTo(expected.lectureId());
+      assertThat(lectureSchedule.capacity()).isEqualTo(expected.capacity());
+      assertThat(lectureSchedule.enrolledCount()).isEqualTo(expected.enrolledCount());
+      assertThat(lectureSchedule.startAt()).isEqualTo(expected.startAt());
+      assertThat(lectureSchedule.endAt()).isEqualTo(expected.endAt());
+      assertThat(lectureSchedule.createdAt()).isEqualTo(expected.createdAt());
+      assertThat(lectureSchedule.updatedAt()).isEqualTo(expected.updatedAt());
+    }
   }
 
 }

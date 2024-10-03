@@ -12,6 +12,7 @@ public enum LectureErrorCode implements ErrorCode {
   INVALID_LECTURE_SCHEDULE_ID(HttpStatus.BAD_REQUEST, "유요하지 않은 강의 스케줄 ID 입니다."),
   INVALID_LECTURE_ENROLLMENT_ID(HttpStatus.BAD_REQUEST, "유요하지 않은 강의 등록 ID 입니다."),
   INVALID_USER_ID(HttpStatus.BAD_REQUEST, "유요하지 않은 사용자 ID 입니다."),
+  INVALID_DATE(HttpStatus.BAD_REQUEST, "유요하지 않은 날짜 입니다."),
   LECTURE_NOT_FOUND(HttpStatus.NOT_FOUND, "강의를 찾을 수 없습니다."),
   LECTURE_SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "강의 스케줄을 찾을 수 없습니다."),
   LECTURE_ENROLLMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "강의 등록을 찾을 수 없습니다."),

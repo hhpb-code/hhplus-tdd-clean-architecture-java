@@ -5,8 +5,12 @@ import com.hhplus.tdd.clean.architecture.domain.lecture.LectureQueryService;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureCommand;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureEnrollment;
 import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureQuery;
+import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureQuery.FindAvailableLectureSchedulesByDate;
+import com.hhplus.tdd.clean.architecture.domain.lecture.dto.LectureSchedule;
 import com.hhplus.tdd.clean.architecture.domain.user.UserQueryService;
 import com.hhplus.tdd.clean.architecture.domain.user.dto.UserQuery;
+import java.time.LocalDate;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,4 +42,8 @@ public class LectureFacade {
         new LectureQuery.GetLectureEnrollmentById(enrollmentId));
   }
 
+  public List<LectureSchedule> getAvailableLectureSchedules(LocalDate date) {
+    return lectureQueryService.findAvailableLectureSchedules(
+        new FindAvailableLectureSchedulesByDate(date));
+  }
 }
